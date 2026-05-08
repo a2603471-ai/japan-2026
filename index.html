@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🇯🇵 2026 京阪之旅</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background: #F5F5F5;
+  color: #1A1A1A;
+  min-height: 100vh;
+}
+
+/* ── Sticky Header ── */
+.header {
+  background: #fff;
+  border-bottom: 1px solid #E8E8E8;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-top { padding: 14px 16px 8px; display: flex; align-items: center; justify-content: space-between; }
+.map-header-btn {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: #F5F5F5;
+  border: 1px solid #E8E8E8;
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.header-top h1 { font-size: 1.05rem; font-weight: 700; color: #1A1A1A; }
+.header-top p  { font-size: 0.78rem; color: #999; margin-top: 2px; }
+
+/* ── Day Tabs ── */
+.day-tabs {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-top: 1px solid #F0F0F0;
+}
+.day-tabs::-webkit-scrollbar { display: none; }
+.day-tab {
+  flex: 0 0 auto;
+  padding: 8px 14px;
+  font-size: 0.78rem;
+  color: #AAAAAA;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  text-align: center;
+  transition: color 0.15s;
+}
+.day-tab .tab-day  { font-weight: 700; display: block; }
+.day-tab .tab-date { font-size: 0.70rem; display: block; margin-top: 1px; }
+.day-tab.active { color: #1A1A1A; border-bottom-color: #1A1A1A; }
+
+/* ── Info Section ── */
+.info-section {
+  background: #fff;
+  border-bottom: 1px solid #EEEEEE;
+  margin-bottom: 12px;
+}
+.info-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 16px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+}
+.info-content { display: none; padding: 0 16px 12px; }
+.info-content.open { display: block; }
+.info-row {
+  display: flex;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px solid #F5F5F5;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: #444;
+}
+.info-row .info-icon { flex-shrink: 0; }
+
+/* ── Day Content ── */
+.day-content { display: none; padding: 0 12px 40px; }
+.day-content.active { display: block; }
+
+.day-header {
+  background: #fff;
+  border-radius: 12px;
+  padding: 13px 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.day-header h2 { font-size: 0.95rem; font-weight: 700; }
+.day-header p  { font-size: 0.78rem; color: #888; margin-top: 3px; }
+.day-progress  { font-size: 0.76rem; color: #AAAAAA; margin-top: 5px; }
+
+/* ── Alert ── */
+.alert {
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  background: #FFF8E1;
+  border-left: 3px solid #FFC107;
+  color: #555;
+}
+.alert.red { background: #FFF0F0; border-left-color: #E57373; color: #444; }
+
+/* ── Schedule Items ── */
+.schedule-list { display: flex; flex-direction: column; gap: 7px; }
+
+.schedule-item {
+  background: #fff;
+  border-radius: 10px;
+  padding: 11px 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: opacity 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.schedule-item.checked { opacity: 0.38; }
+
+.item-checkbox {
+  width: 18px; height: 18px;
+  border: 1.5px solid #CCCCCC;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  font-size: 10px;
+  color: transparent;
+}
+.schedule-item.checked .item-checkbox {
+  background: #1A1A1A;
+  border-color: #1A1A1A;
+  color: #fff;
+}
+
+.item-body { flex: 1; min-width: 0; }
+.item-time { font-size: 0.74rem; color: #AAAAAA; margin-bottom: 2px; font-weight: 500; }
+.item-name { font-size: 0.92rem; font-weight: 500; line-height: 1.4; color: #1A1A1A; }
+.schedule-item.checked .item-name { text-decoration: line-through; color: #BBBBBB; }
+
+.item-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+  background: #F2F2F2;
+  color: #888;
+}
+.tag-food     { background: #FFF4ED; color: #C0784A; }
+.tag-shop     { background: #EDF4FF; color: #4A7EC0; }
+.tag-sight    { background: #EDFFF4; color: #4AC080; }
+.tag-transport{ background: #F5EDFF; color: #8A4AC0; }
+.tag-hotel    { background: #FFFAED; color: #C0A04A; }
+
+/* ── Map Link ── */
+.map-link {
+  font-size: 1.35rem;
+  text-decoration: none;
+  opacity: 0.65;
+  flex-shrink: 0;
+  align-self: center;
+  padding: 4px 8px;
+  line-height: 1;
+  transition: opacity 0.15s;
+}
+.map-link:hover { opacity: 1; }
+
+/* ── Filter Bar ── */
+.filter-bar {
+  display: flex;
+  gap: 6px;
+  padding: 7px 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-top: 1px solid #F0F0F0;
+  background: #fff;
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-btn {
+  flex: 0 0 auto;
+  padding: 4px 11px;
+  border: 1px solid #E0E0E0;
+  border-radius: 14px;
+  font-size: 0.76rem;
+  color: #888;
+  background: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.filter-btn.active {
+  background: #1A1A1A;
+  border-color: #1A1A1A;
+  color: #fff;
+}
+
+/* ── Day Info Blocks ── */
+.day-info-section {
+  background: #fff;
+  border-radius: 10px;
+  margin-top: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+.day-info-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 13px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+}
+.day-info-content {
+  display: none;
+  padding: 6px 13px 12px;
+  font-size: 0.80rem;
+  line-height: 1.65;
+  color: #444;
+  border-top: 1px solid #F0F0F0;
+}
+.day-info-content.open { display: block; }
+.day-info-content a { color: #4A7EC0; text-decoration: none; }
+.day-info-content a:hover { text-decoration: underline; }
+.di-row { padding: 4px 0; border-bottom: 1px solid #F7F7F7; }
+.di-row:last-child { border-bottom: none; }
+.di-label { font-weight: 600; color: #333; margin: 6px 0 2px; font-size: 0.78rem; }
+
+/* ── Exchange ── */
+.exchange-rate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 6px;
+  font-size: 0.80rem;
+  color: #777;
+  border-top: 1px solid #F5F5F5;
+}
+.exchange-rate input {
+  width: 62px;
+  padding: 4px 6px;
+  border: 1px solid #DDD;
+  border-radius: 6px;
+  font-size: 0.80rem;
+  text-align: center;
+  font-family: inherit;
+  color: #1A1A1A;
+}
+.exchange-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px solid #F5F5F5;
+}
+.exchange-label { font-size: 0.76rem; color: #999; width: 52px; flex-shrink: 0; }
+.exchange-input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #1A1A1A;
+  min-width: 0;
+}
+.exchange-input:focus { outline: none; border-color: #AAAAAA; }
+.ex-block { padding: 8px 0; }
+.ex-input-row { display: flex; align-items: center; gap: 8px; }
+.ex-currency { font-size: 0.84rem; font-weight: 600; color: #555; width: 38px; flex-shrink: 0; }
+.ex-result {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1A1A1A;
+  padding: 5px 0 5px 46px;
+}
+.ex-divider { height: 1px; background: #EEEEEE; margin: 4px 0; }
+.ex-fields { display: flex; flex-direction: column; gap: 8px; padding: 8px 0; border-top: 1px solid #F5F5F5; }
+.ex-field { display: flex; align-items: center; border: 1px solid #E0E0E0; border-radius: 8px; overflow: hidden; }
+.ex-field input {
+  flex: 1; padding: 10px 12px; border: none;
+  font-size: 1.05rem; font-family: inherit; color: #1A1A1A;
+  min-width: 0; background: #fff;
+}
+.ex-field input:focus { outline: none; }
+.ex-unit { padding: 10px 0; font-size: 0.78rem; color: #888; background: #F8F8F8; border-left: 1px solid #E8E8E8; white-space: nowrap; width: 58px; text-align: center; flex-shrink: 0; }
+.ex-prefix { padding: 10px 4px 10px 12px; font-size: 0.9rem; font-weight: 600; color: #555; flex-shrink: 0; width: 52px; }
+
+/* ── Map Modal ── */
+.map-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0,0,0,0.95);
+  flex-direction: column;
+}
+.map-modal.open { display: flex; }
+.map-modal-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  gap: 7px;
+  flex-shrink: 0;
+  background: #111;
+}
+.map-tab {
+  flex: 1;
+  padding: 6px 0;
+  background: none;
+  border: 1px solid #555;
+  border-radius: 6px;
+  color: #AAA;
+  font-size: 0.74rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+.map-tab.active { background: #fff; border-color: #fff; color: #111; font-weight: 600; }
+.map-close {
+  width: 32px; height: 32px;
+  background: none; border: none;
+  color: #fff; font-size: 1.2rem;
+  cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.map-body {
+  flex: 1;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.map-body img { min-width: 100%; height: auto; display: block; max-width: none; }
+.map-float-btn {
+  position: fixed;
+  bottom: 24px; left: 16px;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: #1A1A1A;
+  color: #fff; font-size: 1.1rem;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  z-index: 200;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Back to Top ── */
+.back-top {
+  position: fixed;
+  bottom: 24px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #1A1A1A;
+  color: #fff;
+  font-size: 1.1rem;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 200;
+  -webkit-tap-highlight-color: transparent;
+}
+.back-top.visible { opacity: 1; pointer-events: auto; }
+
+/* ── Reset ── */
+.reset-btn {
+  display: block;
+  margin: 14px auto 0;
+  padding: 7px 20px;
+  background: none;
+  border: 1px solid #DDDDDD;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  color: #AAAAAA;
+  cursor: pointer;
+  font-family: inherit;
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>🇯🇵 2026 京阪之旅</h1>
+      <p>5/14（四）― 5/20（三）｜7天6夜</p>
+    </div>
+    <button class="map-header-btn" onclick="openMapModal()">🚇</button>
+  </div>
+  <div class="day-tabs">
+    <div class="day-tab active"  onclick="switchDay(0,this)"><span class="tab-day">Day 1</span><span class="tab-date">5/14 四</span></div>
+    <div class="day-tab"         onclick="switchDay(1,this)"><span class="tab-day">Day 2</span><span class="tab-date">5/15 五</span></div>
+    <div class="day-tab"         onclick="switchDay(2,this)"><span class="tab-day">Day 3</span><span class="tab-date">5/16 六</span></div>
+    <div class="day-tab"         onclick="switchDay(3,this)"><span class="tab-day">Day 4</span><span class="tab-date">5/17 日</span></div>
+    <div class="day-tab"         onclick="switchDay(4,this)"><span class="tab-day">Day 5</span><span class="tab-date">5/18 一</span></div>
+    <div class="day-tab"         onclick="switchDay(5,this)"><span class="tab-day">Day 6</span><span class="tab-date">5/19 二</span></div>
+    <div class="day-tab"         onclick="switchDay(6,this)"><span class="tab-day">Day 7</span><span class="tab-date">5/20 三</span></div>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterTag('all',this)">全部</button>
+    <button class="filter-btn" onclick="filterTag('food',this)">🍽 餐食</button>
+    <button class="filter-btn" onclick="filterTag('shop',this)">🛍 購物</button>
+    <button class="filter-btn" onclick="filterTag('sight',this)">⛩ 景點</button>
+    <button class="filter-btn" onclick="filterTag('transport',this)">🚇 交通</button>
+    <button class="filter-btn" onclick="filterTag('hotel',this)">🏨 住宿</button>
+  </div>
+</div>
+
+<!-- Exchange -->
+<div class="info-section">
+  <div class="info-toggle" onclick="toggleExchange()">💴 匯率換算 <span id="exchange-arrow">▲</span></div>
+  <div class="info-content open" id="exchange-content">
+    <div class="exchange-rate">
+      <span>匯率</span>
+      <input type="number" id="ex-rate" value="0.2" step="0.001" min="0.01" oninput="calcExchange()">
+      <span>TWD/¥｜可自行調整</span>
+    </div>
+    <div class="ex-fields">
+      <div class="ex-field">
+        <span class="ex-prefix">¥</span>
+        <input type="number" id="ex-jpy" placeholder="0" inputmode="decimal" oninput="calcTwd()">
+        <span class="ex-unit">日圓</span>
+      </div>
+      <div class="ex-field">
+        <span class="ex-prefix">NT$</span>
+        <input type="number" id="ex-twd" placeholder="0" inputmode="decimal" oninput="calcJpy()">
+        <span class="ex-unit">新臺幣</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Info -->
+<div class="info-section">
+  <div class="info-toggle" onclick="toggleInfo()">✈️ 航班 &amp; 住宿資訊 <span id="info-arrow">▼</span></div>
+  <div class="info-content" id="info-content">
+    <div class="info-row"><span class="info-icon">🛫</span><div><strong>去程</strong> IT212｜5/14 TPE 15:15 → KIX 19:00<br><span style="color:#AAA;font-size:0.72rem">台灣虎航｜需線上 Check-in</span></div></div>
+    <div class="info-row"><span class="info-icon">🛬</span><div><strong>回程</strong> IT211｜5/20 KIX 11:15 → TPE 13:10<br><span style="color:#AAA;font-size:0.72rem">台灣虎航｜需線上 Check-in</span></div></div>
+    <div class="info-row"><span class="info-icon">🏨</span><div><strong>京都</strong> 5/14–5/17｜四條烏丸麗嘉廣場飯店<br><span style="color:#AAA;font-size:0.72rem">烏丸線「四條站」6號出口｜入住15:00 退房11:00</span></div></div>
+    <div class="info-row"><span class="info-icon">🏠</span><div><strong>大阪</strong> 5/17–5/20｜谷町君・難波80【Airbnb】<br><span style="color:#AAA;font-size:0.72rem">御堂筋線「大國町站」4號出口｜入住15:00 退房10:00</span></div></div>
+  </div>
+</div>
+
+<!-- Transport Info -->
+<div class="info-section">
+  <div class="info-toggle" onclick="toggleTransport()">🚃 機場↔住宿 交通建議 <span id="transport-arrow">▼</span></div>
+  <div class="info-content" id="transport-content">
+    <div style="font-size:0.72rem;color:#999;padding:8px 0 4px;border-top:1px solid #F5F5F5;">✈️ 去程｜KIX → 京都住宿</div>
+    <div class="info-row"><span class="info-icon">🚅</span><div><strong>HARUKA 特急</strong>｜KIX 第1航廈 → 京都站（約 75 分）<br>→ 烏丸線 四條站（6號出口）步行 2–3 分抵飯店<br><span style="color:#AAA;font-size:0.72rem">費用：¥3,620｜建議搭 20:45 班次</span></div></div>
+    <div style="font-size:0.72rem;color:#999;padding:8px 0 4px;border-top:1px solid #F5F5F5;margin-top:4px;">✈️ 回程｜大阪住宿 → KIX</div>
+    <div class="info-row"><span class="info-icon">🚇</span><div><strong>御堂筋線</strong>｜大國町站（4號出口）→ 難波站（1站，約 3 分）<br><span style="color:#AAA;font-size:0.72rem">費用：¥190</span></div></div>
+    <div class="info-row"><span class="info-icon">🚅</span><div><strong>南海電鐵 RAPIT</strong>｜難波站 → KIX（約 35 分）<br><span style="color:#AAA;font-size:0.72rem">費用：¥1,430（指定席）｜普通特急 ¥920</span></div></div>
+    <div class="info-row"><span class="info-icon">⏱️</span><div><strong>建議時間</strong>｜07:30 大國町出發 → 07:35 難波換乘<br>→ 約 08:15–08:20 抵達 KIX T1<br><span style="color:#AAA;font-size:0.72rem">IT211 11:15 起飛｜最晚 09:15 前進航廈</span></div></div>
+  </div>
+</div>
+
+<!-- ===== Day 1 ===== -->
+<div class="day-content active" id="day-0">
+  <div class="day-header">
+    <h2>✈️ 5/14（週四）抵達日</h2>
+    <p>KIX → 京都</p>
+    <div class="day-progress" id="prog-0"></div>
+  </div>
+  <div class="schedule-list">
+    <div class="schedule-item" onclick="toggle(this,'0-0')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">19:00</div><div class="item-name">✈️ KIX 第1航廈抵達</div><span class="item-tag tag-transport">交通</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'0-1')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">20:45</div><div class="item-name">🚂 HARUKA 出發｜KIX → 京都站（約 75 分）</div><span class="item-tag tag-transport">交通</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'0-2')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">21:45</div><div class="item-name">🏨 RIHGA PLACE 入住｜四條站 4 號出口 步行 2–3 分</div><span class="item-tag tag-hotel">住宿</span></div><a href="https://maps.app.goo.gl/7RqbBmQdUpVzVZVX9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'0-3')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">22:00</div><div class="item-name">🛒 超市買晚餐｜Life 或 Fresco（步行 5 分）</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/PekmEanmnNGkRoim8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d0-info0')">📋 晚間超市 &amp; 交通備註 <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d0-info0">
+      <div class="di-label">🚇 交通動線</div>
+      <div class="di-row">HARUKA 搭 20:45 班次｜KIX → 京都站（75分）</div>
+      <div class="di-row">京都站 → 烏丸線 四條站 4 號出口（有電梯，拖行李方便）→ 步行 2–3 分抵飯店</div>
+      <div class="di-label">🏪 附近超市（步行 3–5 分）</div>
+      <div class="di-row"><a href="https://maps.app.goo.gl/PekmEanmnNGkRoim8" target="_blank">📍 Life 四條烏丸店</a>｜熟食・便當豐富，價格親民</div>
+      <div class="di-row"><a href="https://maps.app.goo.gl/5NudJp628FniLWCA8" target="_blank">📍 Fresco 四條店</a>｜深夜營業，晚抵達首選</div>
+      <div class="di-label">🛒 建議採買</div>
+      <div class="di-row">今晚：熟食便當、炸物、壽司卷（¥500–800）</div>
+      <div class="di-row">飲料：日本限定牛奶、啤酒、茶飲</div>
+      <div class="di-row">明日早餐備糧：飯糰、麵包、優格</div>
+    </div>
+  </div>
+  <button class="reset-btn" onclick="resetDay(0,4)">重置今日打勾</button>
+</div>
+
+<!-- ===== Day 2 ===== -->
+<div class="day-content" id="day-1">
+  <div class="day-header">
+    <h2>⛩️ 5/15（週五）清水寺 → 祇園</h2>
+    <p>京都 Day 2</p>
+    <div class="day-progress" id="prog-1"></div>
+  </div>
+  <div class="alert red">🚨 葵祭日警示：10:30–15:30 市巴士嚴重延誤，下午改地鐵或步行</div>
+  <div class="schedule-list">
+    <div class="schedule-item" onclick="toggle(this,'1-0')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">08:00</div><div class="item-name">🚕 計程車 → 清水寺（告知「五条坂入口」）</div><span class="item-tag tag-transport">交通</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'1-1')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">08:30</div><div class="item-name">⛩️ 清水寺｜¥400</div><span class="item-tag tag-sight">景點</span></div><a href="https://maps.app.goo.gl/Wayhrjyphn7qHdSD7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-2')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">09:00</div><div class="item-name">🍰 八ツ橋しゅ 泡芙</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/1t5DaLTANBWKAsw59" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-3')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍵 GOKAGO 日本茶専門店</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/iC1YdSWxh21Ej4wMA" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-4')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ SNOOPY Chocolat 清水坂店</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/oN3y9mHUorFH1qnZ9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-5')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 京都北山 MALEBRANCHE</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/h3caDSQSPzzqE1hU9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-6')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ TEN Matcha Cafe &amp; Giftshop</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/3RTygtHgoidfAShUA" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-7')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🥐 LIBERTÉ PÂTISSERIE</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/uK5x3i3Z7u6owTfM7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-8')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 七味家本舖</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/vVGv6jDmKLPvKz34A" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-9')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">11:00</div><div class="item-name">🍱 炭焼 うな富士 清水別邸（抵達先取號）</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/w7pRLoE5fFVtUQqr6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-10')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">☕ here 京都清水</div><span class="item-tag tag-food">咖啡</span></div><a href="https://maps.app.goo.gl/cfa8MkwkGnyw2FNT6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-11')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">13:00</div><div class="item-name">🛍️ 二年坂／三年坂</div><span class="item-tag tag-sight">景點</span></div><a href="https://maps.app.goo.gl/rDJS8mWqKDNyG37j6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-12')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍡 Mochi mochi もちもち</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/vEqMdpWhFaaqELv59" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-13')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍵 八十八良葉舎</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/bJ4CbeFqtwC6oq6X6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-14')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🏮 祇園花見小路｜步行約 15 分</div><span class="item-tag tag-sight">景點</span></div><a href="https://maps.app.goo.gl/jGPr7XRBdp4pnh7r6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-15')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">17:30</div><div class="item-name">🍜 Ramen Nishiki｜抹茶拉麵</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/GLJHrGyqQEhaf1U86" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-16')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">⛩️ 八坂神社</div><span class="item-tag tag-sight">景點</span></div><a href="https://maps.app.goo.gl/NeQ5qvWge1dc7iDQ9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'1-17')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">彈性</div><div class="item-name">🍻 Bar KAKTEL｜酒吧</div><span class="item-tag tag-food">美食</span></div></div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d1-info0')">🛍️ 清水坂・二年坂・三年坂 店家時間 <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d1-info0">
+      <div class="di-row">10:00–18:00　<a href="https://maps.app.goo.gl/1t5DaLTANBWKAsw59" target="_blank">🍰 八ツ橋しゅ泡芙</a>｜抹茶口味</div>
+      <div class="di-row">08:30–18:00　<a href="https://maps.app.goo.gl/cfa8MkwkGnyw2FNT6" target="_blank">☕ here 京都清水</a>｜咖啡</div>
+      <div class="di-row">09:30–17:30　<a href="https://maps.app.goo.gl/oN3y9mHUorFH1qnZ9" target="_blank">🛍️ SNOOPY Chocolat</a>｜京都限定</div>
+      <div class="di-row">09:00–17:00　<a href="https://maps.app.goo.gl/h3caDSQSPzzqE1hU9" target="_blank">🛍️ 京都北山 MALEBRANCHE</a>｜抹茶伴手禮</div>
+      <div class="di-row">10:30–18:30　<a href="https://maps.app.goo.gl/3RTygtHgoidfAShUA" target="_blank">🛍️ TEN Matcha Cafe</a>｜黑貓擺飾</div>
+      <div class="di-row">08:00–17:00　<a href="https://maps.app.goo.gl/uK5x3i3Z7u6owTfM7" target="_blank">🥐 LIBERTÉ</a>｜抹茶可頌</div>
+      <div class="di-row">09:30–17:30　<a href="https://maps.app.goo.gl/vVGv6jDmKLPvKz34A" target="_blank">🛍️ 七味家本舖</a>｜七味粉</div>
+      <div class="di-row">10:30–18:00　<a href="https://maps.app.goo.gl/iC1YdSWxh21Ej4wMA" target="_blank">🍵 GOKAGO</a>｜抹茶拿鐵</div>
+      <div class="di-row">10:00–18:00　<a href="https://maps.app.goo.gl/bJ4CbeFqtwC6oq6X6" target="_blank">🍵 八十八良葉舎</a>｜抹茶</div>
+    </div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d1-info1')">🚗 交通 &amp; 注意事項 <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d1-info1">
+      <div class="di-row">計程車：告知司機「五条坂入口」或「茶碗坂出口」，避開東大路通擁擠路段</div>
+      <div class="di-row">下午動線：清水坂 → 祇園花見小路步行約 15 分，葵祭期間一律不搭市巴士</div>
+      <div class="di-row">うな富士：無法線上預約，11:00 到門口先取號碼牌再閒逛</div>
+    </div>
+  </div>
+  <button class="reset-btn" onclick="resetDay(1,18)">重置今日打勾</button>
+</div>
+
+<!-- ===== Day 3 ===== -->
+<div class="day-content" id="day-2">
+  <div class="day-header">
+    <h2>🛍️ 5/16（週六）錦市場 → 四條河原町</h2>
+    <p>京都 Day 3 購物日</p>
+    <div class="day-progress" id="prog-2"></div>
+  </div>
+  <div class="schedule-list">
+    <div class="schedule-item" onclick="toggle(this,'2-0')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">08:00</div><div class="item-name">⛩️ 平等寺（步行 5 分）</div><span class="item-tag tag-sight">景點</span></div><a href="https://maps.app.goo.gl/4DMopwwg5a56NnBN8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-1')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">09:00</div><div class="item-name">🥖 Flip up!2</div><span class="item-tag tag-food">早餐</span></div><a href="https://maps.app.goo.gl/FJWowQUCLY8MHmPy6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-2')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">09:30</div><div class="item-name">🏮 錦市場（10:00 前人少）</div><span class="item-tag tag-sight">景點</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'2-3')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍳 田中雞卵</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/mUfNdRkg1x7PyqxZA" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-4')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍩 豆乳甜甜圈こんなもんじゃ</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/eKVDSD9yajt8SHXV9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-5')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 史努比茶屋 京都錦店</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/FXsDoCSVafWvVtLF6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-6')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍱 Onimaru 飯團</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/hWmLU5aoeGNbk2ug9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-7')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">⛩️ 錦天滿宮</div><span class="item-tag tag-sight">景點</span></div><a href="https://maps.app.goo.gl/sLtA75t5AmQAG6a2A" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-8')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍵 丸久小山園 西洞院店</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/aWK4oUUJfVEcShe69" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-9')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">⛩️ 御金神社</div><span class="item-tag tag-sight">景點</span></div><a href="https://maps.app.goo.gl/HvgLsZtmyZNf9eaG8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-10')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">11:00</div><div class="item-name">🛍️ LE LABO 新風館</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/6vWJpjtjWACcWZoX6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-11')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍜 麵屋優光</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/7TPfoYEjGbdGZ2Nm7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-12')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍨 ななや 京都三条店</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/oUPdXB9WiwFQ9ZiP6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-13')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">15:00</div><div class="item-name">⛩️ SOU・SOU 伊勢木棉</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/5ArAZtTCW3ZHe8av9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-14')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ IKKYU</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/XUs8raHYH2rkVp2e7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-15')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 富澤商店 高島屋京都店</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/7Th72kQH7Y4d1KsX8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-16')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 3COINS｜OPA 5F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/EzeBaxJJuQ9XUu7v8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-17')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 新京極薬品｜藥妝</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/9XYcUMVnrR4f7Pi36" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-18')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ Snoopy Town Shop</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/8C9Lyoye2g1u11Jf9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-19')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ KIDDY LAND 京都四条河原町店</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/YvArs3ZEUqEEa3AZ9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-20')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ UNIQLO 京都旗艦（B1–3F）</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/6mNc2Qw3U6eAgZQS7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-21')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">17:30</div><div class="item-name">🍱 Ginsui 銀水｜壽喜燒</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/6ayFfhrbwXgCQHeU9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-22')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ OS Drug｜藥妝</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/DwJxepuYF17g5fHXA" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-23')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ OS新京極通｜藥妝</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/giwZjNiYp4f9fdMd8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'2-24')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">待定</div><div class="item-name">🍵 丸久小山園（高島屋 B1）</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/EBDdiwysW9esAECi8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d2-info0')">🚗 交通路線 <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d2-info0">
+      <div class="di-row">住宿（四條烏丸）→ 錦市場：步行約 8 分</div>
+      <div class="di-row">錦市場東端 → 河原町站：步行約 5 分</div>
+      <div class="di-row">LE LABO 新風館（烏丸御池）：地鐵烏丸線 1 站，約 5 分</div>
+      <div class="di-row">晚餐後返住宿：步行或搭阪急</div>
+    </div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d2-info1')">🏪 店家備註 <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d2-info1">
+      <div class="di-row">🥖 Flip up：買完可先回飯店放，再出門逛錦市場</div>
+      <div class="di-row">🏮 錦市場：10:00 前最舒適，田中雞卵玉子燒為老牌推薦</div>
+      <div class="di-row">🍱 Onimaru：可外帶至御池通長椅享用</div>
+      <div class="di-row">🍱 Kyo Unawa Honten：強烈建議提前預約（¥5,000–6,000）</div>
+    </div>
+  </div>
+  <button class="reset-btn" onclick="resetDay(2,25)">重置今日打勾</button>
+</div>
+
+<!-- ===== Day 4 ===== -->
+<div class="day-content" id="day-3">
+  <div class="day-header">
+    <h2>🚃 5/17（週日）京都撤退 → 大阪</h2>
+    <p>移動日</p>
+    <div class="day-progress" id="prog-3"></div>
+  </div>
+  <div class="alert red">⚠️ 雙重人潮警報｜迴避：難波・心齋橋・日本橋・惠美須町・長堀橋<br>🎤 嵐演唱會（京瓷巨蛋 16:00）｜🎭 日本橋 Street Festa（11:00–17:00）</div>
+  <div class="schedule-list">
+    <div class="schedule-item" onclick="toggle(this,'3-0')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">09:00</div><div class="item-name">🏨 RIHGA PLACE 退房</div><span class="item-tag tag-hotel">住宿</span></div><a href="https://maps.app.goo.gl/7RqbBmQdUpVzVZVX9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'3-1')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">09:30</div><div class="item-name">🏣 Crosta 京都站 寄行李 B1</div><span class="item-tag tag-transport">行李</span></div><a href="https://maps.app.goo.gl/jDrUBhKDag923rom7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'3-2')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">10:00</div><div class="item-name">☕ ACTUAL KYOTO</div><span class="item-tag tag-food">咖啡</span></div><a href="https://maps.app.goo.gl/RReDqqUnUbvCmicZ9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'3-3')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ JR 京都伊勢丹</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/4vnpoqXCE6dnXaZT6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'3-4')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 京都 Porta</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/d7xWfeiEiui7T7Wg8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'3-5')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍱 茶泡飯（京都 Porta Concourse Floor）</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/McfmQcwotbPy6Ydh8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'3-6')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">13:30</div><div class="item-name">🚃 京都 → 大阪移動</div><span class="item-tag tag-transport">交通</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'3-7')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">14:00</div><div class="item-name">🛒 天神橋筋商店街（扇町）</div><span class="item-tag tag-sight">景點</span></div><a href="https://maps.app.goo.gl/h6ESHh88RRQdsc4X9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'3-8')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🐙 章魚燒道樂わなか 天四店</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/fdXdZ3QkveT86fj37" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'3-9')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍮 前田豆腐店</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/srNjMa8BirndatHq8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'3-10')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">17:00</div><div class="item-name">🍱 オコノミヤキ PROKO</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/jDF1DhULL1G8zH489" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'3-11')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 GARIGUETTE Osaka｜千層酥</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/S5bQJv22vNKjBuZf7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'3-12')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🧳 大阪站 Crosta 取行李｜20:00 前取件</div><span class="item-tag tag-transport">行李</span></div><a href="https://maps.app.goo.gl/ornRcvkLp82qGzcp7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'3-13')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">19:00</div><div class="item-name">🏠 Check-in 大國町 Airbnb</div><span class="item-tag tag-hotel">住宿</span></div><a href="https://maps.app.goo.gl/Ewz2cwqT2q6fYwmKA" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'3-14')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛒 周邊逛逛｜玉出新今宮・玉出惠美須・LIFE 超市</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/GfiB8cfc8fj9zDYB7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d3-info0')">🧳 行李寄送 Crosta <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d3-info0">
+      <div class="di-row">📦 寄件：<a href="https://maps.app.goo.gl/jDrUBhKDag923rom7" target="_blank">Crosta 京都站</a>｜中央剪票口 B1</div>
+      <div class="di-row">📬 取件：<a href="https://maps.app.goo.gl/ornRcvkLp82qGzcp7" target="_blank">Crosta 大阪站</a>｜JR大阪駅1F 日本旅行横（LUCUA對面）</div>
+      <div class="di-row">💴 費用：¥2,500 起／件｜取件時間 17:00–20:00</div>
+      <div class="di-row">⚠️ 取件請備好寄件收據</div>
+    </div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d3-info1')">🛒 京都站採買 &amp; 天神橋攻略 <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d3-info1">
+      <div class="di-label">京都站開店時間</div>
+      <div class="di-row">JR 京都伊勢丹 B1–2F：11:00 開門（高品質伴手禮最齊全）</div>
+      <div class="di-row">Porta 地下街：10:00 開門（KALDI 及多家點心店）</div>
+      <div class="di-label">天神橋筋分區</div>
+      <div class="di-row">1丁目：年輕服飾（近南森町・大阪天滿宮站）</div>
+      <div class="di-row">3丁目：藥妝・雜貨</div>
+      <div class="di-row">6丁目：居酒屋・超市</div>
+      <div class="di-row">💡 建議從「天神橋筋六丁目」進，由北往南走至南森町站</div>
+    </div>
+  </div>
+  <button class="reset-btn" onclick="resetDay(3,15)">重置今日打勾</button>
+</div>
+
+<!-- ===== Day 5 ===== -->
+<div class="day-content" id="day-4">
+  <div class="day-header">
+    <h2>🌆 5/18（週一）新世界・阿倍野・道頓堀</h2>
+    <p>大阪 南線</p>
+    <div class="day-progress" id="prog-4"></div>
+  </div>
+  <div class="schedule-list">
+    <div class="schedule-item" onclick="toggle(this,'4-0')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">09:00</div><div class="item-name">🌟 芙莉蓮 × 阿倍野 Harukas 300｜16F 兌換入場｜¥2,500</div><span class="item-tag tag-sight">景點</span></div><a href="https://maps.app.goo.gl/hpvQ8BbvDDcjiwBK6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-1')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍱 芙莉蓮餐廳</div><span class="item-tag tag-food">餐食</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'4-2')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">12:00</div><div class="item-name">🍱 伊藤洋華堂｜阿倍野 Q's Mall B1–2F</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/xRamjuMNhyjDEu859" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-3')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ ONE PIECE｜阿倍野 Q's Mall 3F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/rwgdfJcRNWzZ8PY58" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-4')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ Snoopy Town Shop｜阿倍野 Q's Mall 3F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/xRamjuMNhyjDEu859" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-5')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ #C-pla｜阿倍野 Q's Mall 3F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/6vbfDhGp4QejJfZG7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-6')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 3COINS｜天王寺MIO廣場館 2F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/VE5wbajHCPmUEL1J9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-7')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ #C-pla｜天王寺MIO店 5F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/DuWuUJh6XNcd3Swp6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-8')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">15:00</div><div class="item-name">🚇 移動至心齋橋</div><span class="item-tag tag-transport">交通</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'4-9')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 3COINS｜難波City B2</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/KKoTdJNGr2PYDfNMA" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-10')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 牛奶饅頭月化粧</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/83Sbj3HPTd5uJQ8J7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-11')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ Bic Camera 難波</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/snSvEFSwtmNWRfxC8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-12')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ #C-pla+ 心斎橋筋店</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/jQggnWy2CpnyqPm79" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-13')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 MOOKEN｜泡芙</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/6eWokc7erS8txy1L6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-14')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 Le Croissant｜可頌</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/QhdRqRMHUPvqhpEa8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-15')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 Mattari-Purin｜布丁</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/wBP35ewZhXdURpWa6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-16')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ PARCO｜動漫 6F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/sjsT2dY3wz9TTir29" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-17')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ BIG STEP</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/m7xz4U375517bKHV6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-18')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">19:00</div><div class="item-name">🍱 Takoman たこ萬｜關東煮</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/2BGvGpa4NWhQAjjB8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d4-info0')">🚇 交通動線 <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d4-info0">
+      <div class="di-row">大國町 → 天王寺（御堂筋線）：約 5 分，¥170，步行 5 分達ハルカス</div>
+      <div class="di-row">心齋橋 → 道頓堀：步行約 5 分，往南走心齋橋筋即達</div>
+      <div class="di-row">道頓堀 → 大國町：難波站搭御堂筋線 1 站，¥170</div>
+      <div class="di-row">💡 建議使用大阪 Metro 一日券（¥820），搭超過 4 趟即回本</div>
+    </div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d4-info1')">🏪 晚餐候補（道頓堀） <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d4-info1">
+      <div class="di-row"><a href="https://maps.app.goo.gl/5v8D8m5mG7GkHv2e9" target="_blank">🍜 Mugen Ramen Sennichimae</a>｜拉麵</div>
+      <div class="di-row"><a href="https://maps.app.goo.gl/tFf4SzRYKAWc7f7PA" target="_blank">🍜 Creo-Ru Takoyaki &amp; Okonomiyaki</a>｜大阪燒</div>
+      <div class="di-row"><a href="https://maps.app.goo.gl/vkq5B7X2RQ1J3z9E8" target="_blank">🍣 Yakiniku Kitan Hozenji</a>｜燒肉</div>
+    </div>
+  </div>
+  <button class="reset-btn" onclick="resetDay(4,19)">重置今日打勾</button>
+</div>
+
+<!-- ===== Day 6 ===== -->
+<div class="day-content" id="day-5">
+  <div class="day-header">
+    <h2>🏙️ 5/19（週二）梅田・心齋橋補買</h2>
+    <p>大阪 北線</p>
+    <div class="day-progress" id="prog-5"></div>
+  </div>
+  <div class="schedule-list">
+    <div class="schedule-item" onclick="toggle(this,'5-0')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">11:00</div><div class="item-name">🍱 焼肉うしごろ 梅田店（已預約）</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/3zjEeGV3AMVfK7pL9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'5-1')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">13:00</div><div class="item-name">🛍️ 無印良品｜GRAND FRONT 北館 2–4F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/f5iorZDLgBaSan146" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'5-2')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ UNIQLO｜LINKS UMEDA 1F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/2Z1LCSrj7UE3K5K86" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'5-3')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ Harves 超市｜LINKS UMEDA B1</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/vMsbZAzcMkCZKnPo7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'5-4')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 3COINS｜LINKS UMEDA 8F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/cd6uMMCQ7h7V4Zge7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'5-5')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ Snoopy Town Shop｜Kiddyland 大阪梅田 B1</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/yVWDvHXXrDfCHJ1i6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'5-6')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ #C-pla 梅田茶屋町</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/E58MMENr8GAH8kWU9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'5-7')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 扭蛋之森</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/yjHqK7PFK9WyKiE26" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'5-8')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 梅田 LOFT</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/1vvVCpdrSwdZNsod7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'5-9')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ HEP FIVE｜動漫商品</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/TCHtMt9ZiSkXGp3X6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'5-10')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🐙 Hanadako｜生蔥章魚燒</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/twPFzsqrVFEURCjY8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'5-11')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 grenier｜千層酥</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/u1FTGfEQrXb4t4P76" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'5-12')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">彈性</div><div class="item-name">🏠 住宿休息或直接前往心齋橋</div><span class="item-tag tag-transport">交通</span></div><a href="https://maps.app.goo.gl/Ewz2cwqT2q6fYwmKA" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'5-13')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">18:00</div><div class="item-name">🍱 晚餐（待定）</div><span class="item-tag tag-food">餐食</span></div></div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d5-info0')">🚇 交通動線 <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d5-info0">
+      <div class="di-row">大國町 → 梅田：御堂筋線直達，約 10 分，¥230</div>
+      <div class="di-row">梅田 → 心齋橋：御堂筋線 3 站，約 7 分，¥230</div>
+      <div class="di-row">心齋橋 → 大國町：御堂筋線 2 站，約 5 分，¥170</div>
+      <div class="di-row">💡 建議使用大阪 Metro 一日券（¥820），搭超過 4 趟即回本</div>
+    </div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d5-info1')">🏪 景點 &amp; 店家資訊 <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d5-info1">
+      <div class="di-row">Grand Front Osaka：LOFT・蔦屋書店・MUJI 均在內</div>
+      <div class="di-row">HEP FIVE 摩天輪：¥600，10:00–22:00（最終搭乘 21:30）</div>
+      <div class="di-row">Hanadako：大阪新梅田食道街 1 樓（JR大阪站附近）</div>
+      <div class="di-row">PARCO 心齋橋：潮流品牌・文創選物</div>
+      <div class="di-row">BIG STEP：復古美式・潮流二手</div>
+    </div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d5-info2')">🗒️ 明日出發提醒 <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d5-info2">
+      <div class="di-row">✅ 今晚完成收行李，確認虎航隨身行李 7kg 限制</div>
+      <div class="di-row">✅ 確認房東行李存放方式（退房 10:00，需 08:00 前離開）</div>
+      <div class="di-row">✅ KIX T1 國際出發在 B 區，出境後可補購免稅商品</div>
+    </div>
+  </div>
+  <button class="reset-btn" onclick="resetDay(5,14)">重置今日打勾</button>
+</div>
+
+<!-- ===== Day 7 ===== -->
+<div class="day-content" id="day-6">
+  <div class="day-header">
+    <h2>🛫 5/20（週三）返程日</h2>
+    <p>大國町 → KIX → 台灣</p>
+    <div class="day-progress" id="prog-6"></div>
+  </div>
+  <div class="alert red">⏰ 07:00 退房 → 07:30 大國町出發 → 最晚 09:15 進 KIX 航廈</div>
+  <div class="schedule-list">
+    <div class="schedule-item" onclick="toggle(this,'6-0')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">07:00</div><div class="item-name">🏠 民宿退房</div><span class="item-tag tag-hotel">住宿</span></div><a href="https://maps.app.goo.gl/Ewz2cwqT2q6fYwmKA" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'6-1')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">07:30</div><div class="item-name">🚇 大國町站出發</div><span class="item-tag tag-transport">交通</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'6-2')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">08:00</div><div class="item-name">🔁 難波站換乘南海電鐵</div><span class="item-tag tag-transport">交通</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'6-3')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🚅 南海 RAPIT 出發（約 35 分 → KIX）</div><span class="item-tag tag-transport">交通</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'6-4')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">09:00</div><div class="item-name">✈️ KIX T1 抵達｜IT211 報到 &amp; 托運行李</div><span class="item-tag tag-transport">交通</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'6-5')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 出境後免稅區採買（預留 75 分）</div><span class="item-tag tag-shop">購物</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'6-6')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">11:15</div><div class="item-name">🛸 IT211 起飛｜KIX → TPE（預計 13:10 抵達）</div><span class="item-tag tag-transport">交通</span></div></div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d6-info0')">📋 返程行程說明 <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d6-info0">
+      <div class="di-row">08:00　御堂筋線 → 難波站（1站，約3分，¥170）</div>
+      <div class="di-row">08:10　地下 2F 候車，換乘預留 10 分</div>
+      <div class="di-row">08:15　<a href="https://www.howto-osaka.com/tc/ticket/ticket/rapi-t.html" target="_blank">南海 RAPIT</a> 出發（約35分，¥1,430）｜建議提前購票</div>
+      <div class="di-row">08:50　IT211 於 T1 國際 B 區辦理報到</div>
+      <div class="di-row">09:00–09:30　報到 &amp; 托運行李，⚠️ 注意行李限重</div>
+      <div class="di-row">09:30–10:45　出境後免稅採買，10:45 前到登機門</div>
+      <div class="di-label">🛍️ KIX 免稅提醒</div>
+      <div class="di-row">📍 T1 出境後 B 區免稅商店街</div>
+      <div class="di-row">推薦：ROYCE 生巧克力・GODIVA 機場限定</div>
+      <div class="di-row">⏱ 預留約 75 分購物時間</div>
+    </div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d6-info1')">🔀 備選路線 &amp; 行李注意 <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d6-info1">
+      <div class="di-label">若錯過 RAPIT</div>
+      <div class="di-row">大國町 → 天王寺（御堂筋線，¥170）→ JR HARUKA → KIX（約50分，¥980起）</div>
+      <div class="di-row">⚠️ 備選需更早出門（07:00 前離開）</div>
+      <div class="di-label">行李注意</div>
+      <div class="di-row">虎航隨身限重 7kg（含手提包）</div>
+      <div class="di-row">免稅酒類需裝入托運行李（隨身限 100ml 以下）</div>
+    </div>
+  </div>
+  <button class="reset-btn" onclick="resetDay(6,7)">重置今日打勾</button>
+</div>
+
+<div class="map-modal" id="map-modal">
+  <div class="map-modal-header">
+    <button class="map-tab active" onclick="switchMap('osaka',this)">🚇 大阪地鐵</button>
+    <button class="map-tab" onclick="switchMap('kyoto',this)">🚇 京都地鐵</button>
+    <button class="map-tab" onclick="switchMap('keihan',this)">🚃 京阪電車</button>
+    <button class="map-close" onclick="closeMapModal()">✕</button>
+  </div>
+  <div class="map-body" id="map-body">
+    <img id="map-img" src="osaka-metro.gif" alt="地鐵圖">
+  </div>
+</div>
+
+<button class="back-top" id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+const STORE = 'kyoto2026';
+const dayCounts = [4,18,25,15,19,14,7];
+
+function load() { return JSON.parse(localStorage.getItem(STORE)||'{}'); }
+function save(d) { localStorage.setItem(STORE, JSON.stringify(d)); }
+
+function toggle(el, key) {
+  el.classList.toggle('checked');
+  const d = load();
+  if (el.classList.contains('checked')) d[key] = 1; else delete d[key];
+  save(d);
+  renderProgress();
+}
+
+function resetDay(dayIdx, count) {
+  if (!confirm('確定要重置今天的打勾？')) return;
+  const d = load();
+  for (let i = 0; i < count; i++) delete d[dayIdx+'-'+i];
+  save(d);
+  document.querySelectorAll('#day-'+dayIdx+' .schedule-item').forEach(el => el.classList.remove('checked'));
+  renderProgress();
+}
+
+let currentFilter = 'all';
+
+function filterTag(tag, btn) {
+  currentFilter = tag;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilter();
+}
+
+function applyFilter() {
+  const activeDay = document.querySelector('.day-content.active');
+  if (!activeDay) return;
+  activeDay.querySelectorAll('.schedule-item').forEach(item => {
+    if (currentFilter === 'all') {
+      item.style.display = '';
+    } else {
+      const tag = item.querySelector('.item-tag');
+      item.style.display = (tag && tag.classList.contains('tag-' + currentFilter)) ? '' : 'none';
+    }
+  });
+}
+
+function switchDay(idx, tab) {
+  document.querySelectorAll('.day-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.day-tab').forEach(el => el.classList.remove('active'));
+  const day = document.getElementById('day-'+idx);
+  day.classList.add('active');
+  tab.classList.add('active');
+  tab.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
+  day.querySelectorAll('.day-info-content').forEach(c => {
+    c.classList.add('open');
+    const arrow = c.previousElementSibling.querySelector('.di-arrow');
+    if (arrow) arrow.textContent = '▲';
+  });
+  applyFilter();
+}
+
+function renderProgress() {
+  const d = load();
+  dayCounts.forEach((total, i) => {
+    let done = 0;
+    for (let j = 0; j < total; j++) if (d[i+'-'+j]) done++;
+    const el = document.getElementById('prog-'+i);
+    if (el) el.textContent = done > 0 ? done+' / '+total+' 項已完成' : '';
+  });
+}
+
+function restore() {
+  const d = load();
+  Object.keys(d).forEach(key => {
+    const parts = key.split('-');
+    const items = document.querySelectorAll('#day-'+parts[0]+' .schedule-item');
+    if (items[parts[1]]) items[parts[1]].classList.add('checked');
+  });
+  renderProgress();
+}
+
+function toggleDayInfo(id) {
+  const c = document.getElementById(id);
+  c.classList.toggle('open');
+  const arrow = c.previousElementSibling.querySelector('.di-arrow');
+  arrow.textContent = c.classList.contains('open') ? '▲' : '▼';
+}
+
+function toggleTransport() {
+  const c = document.getElementById('transport-content');
+  const a = document.getElementById('transport-arrow');
+  c.classList.toggle('open');
+  a.textContent = c.classList.contains('open') ? '▲' : '▼';
+}
+
+function toggleExchange() {
+  const c = document.getElementById('exchange-content');
+  const a = document.getElementById('exchange-arrow');
+  c.classList.toggle('open');
+  a.textContent = c.classList.contains('open') ? '▲' : '▼';
+}
+function getRate() { return parseFloat(document.getElementById('ex-rate').value) || 0.22; }
+function calcTwd() {
+  const v = parseFloat(document.getElementById('ex-jpy').value);
+  const el = document.getElementById('ex-twd');
+  el.value = isNaN(v) || document.getElementById('ex-jpy').value === '' ? '' : +(v * getRate()).toFixed(2);
+}
+function calcJpy() {
+  const v = parseFloat(document.getElementById('ex-twd').value);
+  const el = document.getElementById('ex-jpy');
+  el.value = isNaN(v) || document.getElementById('ex-twd').value === '' ? '' : Math.round(v / getRate());
+}
+function calcExchange() {
+  if (document.getElementById('ex-jpy').value !== '') calcTwd();
+  else if (document.getElementById('ex-twd').value !== '') calcJpy();
+}
+
+function toggleInfo() {
+  const c = document.getElementById('info-content');
+  const a = document.getElementById('info-arrow');
+  c.classList.toggle('open');
+  a.textContent = c.classList.contains('open') ? '▲' : '▼';
+}
+
+function autoDay() {
+  const dates = ['2026-05-14','2026-05-15','2026-05-16','2026-05-17','2026-05-18','2026-05-19','2026-05-20'];
+  const today = new Date().toISOString().slice(0,10);
+  const i = dates.indexOf(today);
+  if (i >= 0) switchDay(i, document.querySelectorAll('.day-tab')[i]);
+}
+
+restore();
+autoDay();
+
+const mapSrc = { osaka:'osaka-metro.gif', kyoto:'kyoto-subway.webp', keihan:'keihan-rail.webp' };
+function openMapModal() {
+  document.getElementById('map-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeMapModal() {
+  document.getElementById('map-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function switchMap(key, btn) {
+  document.getElementById('map-img').src = mapSrc[key];
+  document.querySelectorAll('.map-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const body = document.getElementById('map-body');
+  body.scrollTop = 0; body.scrollLeft = 0;
+}
+
+const backTop = document.getElementById('back-top');
+window.addEventListener('scroll', () => {
+  backTop.classList.toggle('visible', window.scrollY > 200);
+});
+</script>
+</body>
+</html>
