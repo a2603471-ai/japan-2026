@@ -404,6 +404,25 @@ body {
   cursor: pointer;
   font-family: inherit;
 }
+
+/* ── Souvenir Modal ── */
+.souv-modal { display:none; position:fixed; inset:0; background:#fff; z-index:1000; flex-direction:column; }
+.souv-modal.open { display:flex; }
+.souv-modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:#F8F8F8; border-bottom:1px solid #E8E8E8; flex-shrink:0; }
+.souv-modal-title { font-size:1.05rem; font-weight:700; color:#1A1A1A; }
+#souv-prog { font-size:0.82rem; color:#888; margin-left:auto; margin-right:10px; }
+.souv-body { flex:1; overflow-y:auto; padding:12px; -webkit-overflow-scrolling:touch; }
+.souv-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.souv-item { background:#fff; border:1.5px solid #E8E8E8; border-radius:10px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.06); cursor:pointer; position:relative; transition:border-color 0.2s, box-shadow 0.2s; }
+.souv-item.checked { opacity:0.38; }
+.souv-item img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; }
+.souv-item-body { padding:6px 8px 8px; }
+.souv-name { font-size:0.9rem; font-weight:600; line-height:1.35; color:#333; }
+.souv-price { font-size:0.82rem; color:#888; margin-top:2px; }
+.souv-check { position:absolute; top:6px; right:6px; width:22px; height:22px; border-radius:50%; border:2px solid rgba(180,180,180,0.8); background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:bold; color:#fff; transition:background 0.2s, border-color 0.2s; }
+.souv-item.checked .souv-check { background:#4CAF50; border-color:#4CAF50; }
+.souv-item.checked .souv-check::after { content:'✓'; }
+.souv-reset { display:block; margin:16px auto 4px; padding:8px 24px; background:#fff; border:1px solid #ddd; border-radius:8px; font-size:0.85rem; color:#888; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -415,7 +434,10 @@ body {
       <h1>🇯🇵 2026 京阪之旅</h1>
       <p>5/14（四）― 5/20（三）｜7天6夜</p>
     </div>
-    <button class="map-header-btn" onclick="openMapModal()">🚇</button>
+    <div style="display:flex;gap:8px;">
+      <button class="map-header-btn" onclick="openSouvenirModal()">🛒</button>
+      <button class="map-header-btn" onclick="openMapModal()">🚇</button>
+    </div>
   </div>
   <div class="day-tabs">
     <div class="day-tab active"  onclick="switchDay(0,this)"><span class="tab-day">Day 1</span><span class="tab-date">5/14 四</span></div>
@@ -834,6 +856,89 @@ body {
   </div>
 </div>
 
+<div class="souv-modal" id="souv-modal">
+  <div class="souv-modal-header">
+    <span class="souv-modal-title">🛒 名產甜點</span>
+    <span id="souv-prog">0 / 14</span>
+    <button class="map-close" onclick="closeSouvenirModal()">✕</button>
+  </div>
+  <div class="souv-body">
+    <div class="souv-grid">
+      <div class="souv-item" onclick="toggleSouv(this,'souv-0')">
+        <img src="souvenirs/s01.webp" alt="辻利烤巧克力餅乾" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">辻利烤巧克力餅乾</div><div class="souv-price">¥1,101</div></div>
+        <div class="souv-check"></div>
+      </div>
+      <div class="souv-item" onclick="toggleSouv(this,'souv-1')">
+        <img src="souvenirs/s02.webp" alt="辻利京茶麵包脆餅" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">辻利京茶麵包脆餅（抹茶、焙茶）</div><div class="souv-price">¥734</div></div>
+        <div class="souv-check"></div>
+      </div>
+      <div class="souv-item" onclick="toggleSouv(this,'souv-2')">
+        <img src="souvenirs/s03.png" alt="辻利 京らんぐ" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">辻利 京らんぐ</div></div>
+        <div class="souv-check"></div>
+      </div>
+      <div class="souv-item" onclick="toggleSouv(this,'souv-3')">
+        <img src="souvenirs/s04.png" alt="辻利抹茶捲心酥" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">辻利抹茶捲心酥</div><div class="souv-price">¥1,296</div></div>
+        <div class="souv-check"></div>
+      </div>
+      <div class="souv-item" onclick="toggleSouv(this,'souv-4')">
+        <img src="souvenirs/s05.png" alt="辻利貓蛇餅乾" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">辻利貓蛇餅乾</div><div class="souv-price">¥1,296</div></div>
+        <div class="souv-check"></div>
+      </div>
+      <div class="souv-item" onclick="toggleSouv(this,'souv-5')">
+        <img src="souvenirs/s06.png" alt="丸久小山園" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">丸久小山園：宇治抹茶ゆうげん クリームロール</div></div>
+        <div class="souv-check"></div>
+      </div>
+      <div class="souv-item" onclick="toggleSouv(this,'souv-6')">
+        <img src="souvenirs/s07.png" alt="小倉山莊" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">小倉山莊</div></div>
+        <div class="souv-check"></div>
+      </div>
+      <div class="souv-item" onclick="toggleSouv(this,'souv-7')">
+        <img src="souvenirs/s08.png" alt="Gura茶" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">Gura茶</div><div class="souv-price">¥1,860</div></div>
+        <div class="souv-check"></div>
+      </div>
+      <div class="souv-item" onclick="toggleSouv(this,'souv-8')">
+        <img src="souvenirs/s09.png" alt="千壽仙貝" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">千壽仙貝</div></div>
+        <div class="souv-check"></div>
+      </div>
+      <div class="souv-item" onclick="toggleSouv(this,'souv-9')">
+        <img src="souvenirs/s10.jpeg" alt="卡比盲盒" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">卡比盲盒</div></div>
+        <div class="souv-check"></div>
+      </div>
+      <div class="souv-item" onclick="toggleSouv(this,'souv-10')">
+        <img src="souvenirs/s11.png" alt="Okoge仙貝" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">Okoge仙貝 九條蔥和蝦子的Okogehan</div><div class="souv-price">¥1,080</div></div>
+        <div class="souv-check"></div>
+      </div>
+      <div class="souv-item" onclick="toggleSouv(this,'souv-11')">
+        <img src="souvenirs/s12.png" alt="中村藤吉" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">中村藤吉：茶フィーユ</div></div>
+        <div class="souv-check"></div>
+      </div>
+      <div class="souv-item" onclick="toggleSouv(this,'souv-12')">
+        <img src="souvenirs/s13.png" alt="伊藤久右衛門" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">伊藤久右衛門 抹茶塩のえび天せんべい</div></div>
+        <div class="souv-check"></div>
+      </div>
+      <div class="souv-item" onclick="toggleSouv(this,'souv-13')">
+        <img src="souvenirs/s14.png" alt="辻利兵衛本店" loading="lazy">
+        <div class="souv-item-body"><div class="souv-name">辻利兵衛本店：碾茶入り宇治抹茶チョコレートクランチ「茶ノ道」</div></div>
+        <div class="souv-check"></div>
+      </div>
+    </div>
+    <button class="souv-reset" onclick="resetSouvenirs()">重置全部打勾</button>
+  </div>
+</div>
+
 <button class="back-top" id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <script>
@@ -1091,6 +1196,59 @@ const backTop = document.getElementById('back-top');
 window.addEventListener('scroll', () => {
   backTop.classList.toggle('visible', window.scrollY > 200);
 });
+
+function toggleSouv(el, key) {
+  el.classList.toggle('checked');
+  const d = load();
+  if (el.classList.contains('checked')) d[key] = 1; else delete d[key];
+  save(d);
+  renderSouvProgress();
+  sortSouvGrid();
+}
+function sortSouvGrid() {
+  const grid = document.querySelector('.souv-grid');
+  const items = [...grid.children];
+  items.sort((a, b) => {
+    const ac = a.classList.contains('checked') ? 1 : 0;
+    const bc = b.classList.contains('checked') ? 1 : 0;
+    if (ac !== bc) return ac - bc;
+    const ai = parseInt(a.getAttribute('onclick').match(/souv-(\d+)/)[1]);
+    const bi = parseInt(b.getAttribute('onclick').match(/souv-(\d+)/)[1]);
+    return ai - bi;
+  });
+  items.forEach(el => grid.appendChild(el));
+}
+function renderSouvProgress() {
+  const d = load();
+  let done = 0;
+  for (let i = 0; i < 14; i++) if (d['souv-'+i]) done++;
+  const el = document.getElementById('souv-prog');
+  if (el) el.textContent = done + ' / 14';
+}
+function restoreSouvenirs() {
+  const d = load();
+  document.querySelectorAll('.souv-item').forEach((el, i) => {
+    if (d['souv-'+i]) el.classList.add('checked');
+  });
+  renderSouvProgress();
+}
+function resetSouvenirs() {
+  if (!confirm('確定要重置全部伴手禮打勾？')) return;
+  const d = load();
+  for (let i = 0; i < 14; i++) delete d['souv-'+i];
+  save(d);
+  document.querySelectorAll('.souv-item').forEach(el => el.classList.remove('checked'));
+  renderSouvProgress();
+}
+function openSouvenirModal() {
+  restoreSouvenirs();
+  document.getElementById('souv-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSouvenirModal() {
+  document.getElementById('souv-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
 </script>
 </body>
 </html>
