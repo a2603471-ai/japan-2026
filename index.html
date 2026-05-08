@@ -303,11 +303,11 @@ body {
 .ex-field input {
   flex: 1; padding: 10px 12px; border: none;
   font-size: 1.05rem; font-family: inherit; color: #1A1A1A;
-  min-width: 0; background: #fff;
+  min-width: 0; background: #fff; text-align: right;
 }
 .ex-field input:focus { outline: none; }
 .ex-unit { padding: 10px 0; font-size: 0.78rem; color: #888; background: #F8F8F8; border-left: 1px solid #E8E8E8; white-space: nowrap; width: 58px; text-align: center; flex-shrink: 0; }
-.ex-prefix { padding: 10px 4px 10px 12px; font-size: 0.9rem; font-weight: 600; color: #555; flex-shrink: 0; width: 52px; }
+.ex-prefix { padding: 10px 4px 10px 12px; font-size: 0.9rem; font-weight: 600; color: #555; flex-shrink: 0; width: 52px; text-align: center; }
 
 /* ── Map Modal ── */
 .map-modal {
@@ -482,16 +482,17 @@ body {
       <span>匯率</span>
       <input type="number" id="ex-rate" value="0.2" step="0.001" min="0.01" oninput="calcExchange()">
       <span>TWD/¥｜可自行調整</span>
+      <button onclick="clearExchange()" style="margin-left:auto;padding:3px 10px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:0.76rem;color:#888;cursor:pointer;white-space:nowrap;">清空</button>
     </div>
     <div class="ex-fields">
       <div class="ex-field">
-        <span class="ex-prefix">¥</span>
-        <input type="number" id="ex-jpy" placeholder="0" inputmode="decimal" oninput="calcTwd()">
+        <span class="ex-prefix">🇯🇵 ¥</span>
+        <input type="text" id="ex-jpy" placeholder="0" inputmode="numeric" oninput="calcTwd()">
         <span class="ex-unit">日圓</span>
       </div>
       <div class="ex-field">
-        <span class="ex-prefix">NT$</span>
-        <input type="number" id="ex-twd" placeholder="0" inputmode="decimal" oninput="calcJpy()">
+        <span class="ex-prefix">🇹🇼 $</span>
+        <input type="text" id="ex-twd" placeholder="0" inputmode="numeric" oninput="calcJpy()">
         <span class="ex-unit">新臺幣</span>
       </div>
     </div>
@@ -1130,20 +1131,35 @@ function toggleExchange() {
   c.classList.toggle('open');
   a.textContent = c.classList.contains('open') ? '▲' : '▼';
 }
+function fmtNum(n) { return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function parseNum(s) { return parseFloat(String(s).replace(/,/g, '')); }
+function stripCommas(el) { el.value = el.value.replace(/,/g, ''); }
 function getRate() { return parseFloat(document.getElementById('ex-rate').value) || 0.22; }
 function calcTwd() {
-  const v = parseFloat(document.getElementById('ex-jpy').value);
-  const el = document.getElementById('ex-twd');
-  el.value = isNaN(v) || document.getElementById('ex-jpy').value === '' ? '' : +(v * getRate()).toFixed(2);
+  const jpyEl = document.getElementById('ex-jpy');
+  const raw = jpyEl.value.replace(/,/g, '');
+  const v = parseNum(raw);
+  if (raw === '' || isNaN(v)) { jpyEl.value = raw; document.getElementById('ex-twd').value = ''; return; }
+  jpyEl.value = fmtNum(v);
+  document.getElementById('ex-twd').value = fmtNum(v * getRate());
 }
 function calcJpy() {
-  const v = parseFloat(document.getElementById('ex-twd').value);
-  const el = document.getElementById('ex-jpy');
-  el.value = isNaN(v) || document.getElementById('ex-twd').value === '' ? '' : Math.round(v / getRate());
+  const twdEl = document.getElementById('ex-twd');
+  const raw = twdEl.value.replace(/,/g, '');
+  const v = parseNum(raw);
+  if (raw === '' || isNaN(v)) { twdEl.value = raw; document.getElementById('ex-jpy').value = ''; return; }
+  twdEl.value = fmtNum(v);
+  document.getElementById('ex-jpy').value = fmtNum(v / getRate());
+}
+function clearExchange() {
+  document.getElementById('ex-jpy').value = '';
+  document.getElementById('ex-twd').value = '';
 }
 function calcExchange() {
-  if (document.getElementById('ex-jpy').value !== '') calcTwd();
-  else if (document.getElementById('ex-twd').value !== '') calcJpy();
+  const jpy = document.getElementById('ex-jpy').value.replace(/,/g, '');
+  const twd = document.getElementById('ex-twd').value.replace(/,/g, '');
+  if (jpy !== '') calcTwd();
+  else if (twd !== '') calcJpy();
 }
 
 function toggleInfo() {
