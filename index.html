@@ -993,9 +993,40 @@ body {
 
 <button class="back-top" id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script>
 const STORE = 'kyoto2026';
 const dayCounts = [4,18,25,15,19,14,7];
+
+// ── Firebase 初始化（伴手禮共用同步）──
+const firebaseConfig = {
+  apiKey: "AIzaSyCYAt0Eov0_zwdMQQxOIGnuTbGwOXZ9FK4",
+  authDomain: "japan-2026-b4575.firebaseapp.com",
+  databaseURL: "https://japan-2026-b4575-default-rtdb.firebaseio.com",
+  projectId: "japan-2026-b4575",
+  storageBucket: "japan-2026-b4575.firebasestorage.app",
+  messagingSenderId: "478618904110",
+  appId: "1:478618904110:web:bdc8c9ea3096567b63a1bf"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let fbChecks = {};
+let fbCustom = [];
+
+db.ref('souvenirs').on('value', snap => {
+  const data = snap.val() || {};
+  fbChecks = data.checks || {};
+  fbCustom = Array.isArray(data.custom) ? data.custom : (data.custom ? Object.values(data.custom) : []);
+  const modal = document.getElementById('souv-modal');
+  if (modal && modal.classList.contains('open')) {
+    renderCustomItems();
+    restoreSouvenirs();
+    sortSouvGrid();
+    renderSouvProgress();
+  }
+});
 
 function load() { return JSON.parse(localStorage.getItem(STORE)||'{}'); }
 function save(d) { localStorage.setItem(STORE, JSON.stringify(d)); }
@@ -1266,9 +1297,11 @@ window.addEventListener('scroll', () => {
 
 function toggleSouv(el, key) {
   el.classList.toggle('checked');
-  const d = load();
-  if (el.classList.contains('checked')) d[key] = 1; else delete d[key];
-  save(d);
+  if (el.classList.contains('checked')) {
+    db.ref('souvenirs/checks/' + key).set(1);
+  } else {
+    db.ref('souvenirs/checks/' + key).remove();
+  }
   renderSouvProgress();
   sortSouvGrid();
 }
@@ -1290,37 +1323,32 @@ function sortSouvGrid() {
   items.forEach(el => grid.appendChild(el));
 }
 function renderSouvProgress() {
-  const d = load();
   let done = 0;
-  for (let i = 0; i < 14; i++) if (d['souv-'+i]) done++;
-  const customs = loadCustomItems();
-  for (let i = 0; i < customs.length; i++) if (d['custom-'+i]) done++;
-  const total = 14 + customs.length;
+  for (let i = 0; i < 14; i++) if (fbChecks['souv-'+i]) done++;
+  for (let i = 0; i < fbCustom.length; i++) if (fbChecks['custom-'+i]) done++;
+  const total = 14 + fbCustom.length;
   const el = document.getElementById('souv-prog');
   if (el) el.textContent = done + ' / ' + total;
 }
 function restoreSouvenirs() {
-  const d = load();
   document.querySelectorAll('.souv-item').forEach(el => {
-    if (el.dataset.key && d[el.dataset.key]) el.classList.add('checked');
+    el.classList.remove('checked');
+    if (el.dataset.key && fbChecks[el.dataset.key]) el.classList.add('checked');
   });
   renderSouvProgress();
 }
 function resetSouvenirs() {
   if (!confirm('確定要重置全部伴手禮打勾？')) return;
-  const d = load();
-  for (let i = 0; i < 14; i++) delete d['souv-'+i];
-  const customs = loadCustomItems();
-  for (let i = 0; i < customs.length; i++) delete d['custom-'+i];
-  save(d);
+  db.ref('souvenirs/checks').remove();
   document.querySelectorAll('.souv-item').forEach(el => el.classList.remove('checked'));
   renderSouvProgress();
 }
 function loadCustomItems() {
-  return JSON.parse(localStorage.getItem('souv-custom') || '[]');
+  return fbCustom;
 }
 function saveCustomItems(arr) {
-  localStorage.setItem('souv-custom', JSON.stringify(arr));
+  fbCustom = arr;
+  db.ref('souvenirs/custom').set(arr.length > 0 ? arr : null);
 }
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1347,16 +1375,18 @@ function renderCustomItems() {
 }
 function deleteSouvItem(i) {
   if (!confirm('確定刪除這個品項？')) return;
-  const items = loadCustomItems();
-  const d = load();
-  delete d['custom-' + i];
-  for (let j = i + 1; j < items.length; j++) {
-    if (d['custom-' + j]) { d['custom-' + (j-1)] = 1; } else { delete d['custom-' + (j-1)]; }
-    delete d['custom-' + j];
+  const items = [...fbCustom];
+  const newChecks = {};
+  for (let j = 0; j < items.length; j++) {
+    if (j === i) continue;
+    const newIdx = j < i ? j : j - 1;
+    if (fbChecks['custom-' + j]) newChecks['custom-' + newIdx] = 1;
   }
   items.splice(i, 1);
-  saveCustomItems(items);
-  save(d);
+  const updates = { 'souvenirs/custom': items.length > 0 ? items : null };
+  for (let k = 0; k < items.length + 1; k++) updates['souvenirs/checks/custom-' + k] = null;
+  Object.keys(newChecks).forEach(k => { updates['souvenirs/checks/' + k] = 1; });
+  db.ref().update(updates);
   renderCustomItems();
   sortSouvGrid();
   renderSouvProgress();
