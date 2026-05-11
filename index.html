@@ -443,6 +443,9 @@ body {
 .souv-cat-label { font-size:0.8rem; font-weight:700; color:#666; padding:14px 4px 6px; border-bottom:1.5px solid #EEEEEE; margin-bottom:8px; letter-spacing:0.03em; display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none; }
 .souv-section:first-child .souv-cat-label { padding-top:6px; }
 .souv-cat-arrow { font-size:0.75rem; color:#bbb; }
+.souv-cat-rename-btn { font-size:0.72rem; color:#bbb; padding:2px 5px; margin-left:4px; cursor:pointer; flex-shrink:0; }
+.souv-cat-rename-btn:hover { color:#888; }
+.souv-cat-rename-input { font-size:0.8rem; font-weight:700; color:#666; border:1.5px solid #ccc; border-radius:4px; padding:2px 6px; width:120px; font-family:inherit; }
 .souv-section.collapsed .souv-grid { display:none; }
 .souv-edit-btn { position:absolute; top:8px; left:8px; width:26px; height:26px; border-radius:50%; background:rgba(70,130,220,0.82); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; z-index:2; }
 .souv-note-text { font-size:0.75rem; color:#999; margin-top:3px; line-height:1.4; }
@@ -980,11 +983,13 @@ const db = firebase.database();
 
 let fbChecks = {};
 let fbCustom = [];
+let fbCatAliases = {};
 
 db.ref('souvenirs').on('value', snap => {
   const data = snap.val() || {};
   fbChecks = data.checks || {};
   fbCustom = Array.isArray(data.custom) ? data.custom : (data.custom ? Object.values(data.custom) : []);
+  fbCatAliases = data.catAliases || {};
   const modal = document.getElementById('souv-modal');
   if (modal && modal.classList.contains('open')) {
     renderSouvBody();
@@ -1314,16 +1319,18 @@ function renderSouvBody() {
   const collapsed = getSouvCollapsed();
   const catMap = {};
   SOUV_ITEMS.forEach(item => {
-    if (!catMap[item.cat]) catMap[item.cat] = [];
-    catMap[item.cat].push({ key: item.key, img: item.img, name: item.name, price: item.price });
+    const dispCat = fbCatAliases[item.cat] || item.cat;
+    if (!catMap[dispCat]) catMap[dispCat] = [];
+    catMap[dispCat].push({ key: item.key, img: item.img, name: item.name, price: item.price, _origCat: item.cat });
   });
   fbCustom.forEach((item, i) => {
     const cat = item.category || '🛍️ 自訂品項';
     if (!catMap[cat]) catMap[cat] = [];
     catMap[cat].push({ key: 'custom-' + i, img: item.img, name: item.name, price: item.price, note: item.note, customIdx: i });
   });
-  const extraCats = Object.keys(catMap).filter(c => !SOUV_BUILTIN_CATS.includes(c));
-  [...SOUV_BUILTIN_CATS, ...extraCats].forEach(cat => {
+  const resolvedBuiltins = SOUV_BUILTIN_CATS.map(c => fbCatAliases[c] || c);
+  const extraCats = Object.keys(catMap).filter(c => !resolvedBuiltins.includes(c));
+  [...resolvedBuiltins, ...extraCats].forEach(cat => {
     const items = catMap[cat];
     if (!items || !items.length) return;
     const isCollapsed = !!collapsed[cat];
@@ -1333,7 +1340,8 @@ function renderSouvBody() {
     const label = document.createElement('div');
     label.className = 'souv-cat-label';
     label.onclick = () => toggleSouvCat(cat);
-    label.innerHTML = `<span>${escHtml(cat)}</span><span class="souv-cat-arrow">${isCollapsed ? '▸' : '▾'}</span>`;
+    const origCat = Object.keys(fbCatAliases).find(k => fbCatAliases[k] === cat) || cat;
+    label.innerHTML = `<span>${escHtml(cat)}</span><span class="souv-cat-rename-btn" onclick="event.stopPropagation();startRenameCat('${escHtml(origCat)}','${escHtml(cat)}',this)">✎</span><span class="souv-cat-arrow">${isCollapsed ? '▸' : '▾'}</span>`;
     section.appendChild(label);
     const grid = document.createElement('div');
     grid.className = 'souv-grid';
@@ -1412,6 +1420,37 @@ function compressImg(file, onDone) {
   reader.readAsDataURL(file);
 }
 let pendingImgData = '';
+function startRenameCat(origCat, displayCat, btn) {
+  const label = btn.closest('.souv-cat-label');
+  const nameSpan = label.querySelector('span:first-child');
+  const input = document.createElement('input');
+  input.type = 'text'; input.value = displayCat; input.className = 'souv-cat-rename-input';
+  input.onclick = e => e.stopPropagation();
+  input.onkeydown = e => {
+    if (e.key === 'Enter') confirmRenameCat(origCat, displayCat, input.value.trim());
+    if (e.key === 'Escape') renderSouvBody();
+  };
+  nameSpan.replaceWith(input);
+  btn.textContent = '✓';
+  btn.onclick = e => { e.stopPropagation(); confirmRenameCat(origCat, displayCat, input.value.trim()); };
+  input.focus(); input.select();
+}
+function confirmRenameCat(origCat, oldDisplay, newName) {
+  if (!newName || newName === oldDisplay) { renderSouvBody(); return; }
+  const aliases = { ...fbCatAliases };
+  if (SOUV_BUILTIN_CATS.includes(origCat)) {
+    if (newName === origCat) delete aliases[origCat]; else aliases[origCat] = newName;
+    fbCatAliases = aliases;
+    db.ref('souvenirs/catAliases').set(Object.keys(aliases).length ? aliases : null);
+  }
+  const items = fbCustom.map(it => {
+    if ((it.category || '') === oldDisplay) return { ...it, category: newName };
+    return it;
+  });
+  saveCustomItems(items);
+  renderSouvBody();
+  renderSouvProgress();
+}
 function handleSouvImg(input) {
   const file = input.files[0]; if (!file) return;
   applySouvImgFile(file);
@@ -1447,9 +1486,10 @@ async function pasteSouvImg() {
 }
 function refreshCatOptionsFor(selectId) {
   const sel = document.getElementById(selectId);
-  const customCats = [...new Set(fbCustom.map(i => i.category).filter(c => c && !SOUV_BUILTIN_CATS.includes(c)))];
+  const resolvedB = SOUV_BUILTIN_CATS.map(c => fbCatAliases[c] || c);
+  const customCats = [...new Set(fbCustom.map(i => i.category).filter(c => c && !resolvedB.includes(c)))];
   sel.innerHTML = '<option value="">選擇分類（選填）</option>' +
-    [...SOUV_BUILTIN_CATS, ...customCats].map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('') +
+    [...resolvedB, ...customCats].map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('') +
     '<option value="__custom__">＋ 自訂分類名稱</option>';
 }
 function handleSouvCatChange(sel) {
