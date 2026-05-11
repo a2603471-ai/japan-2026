@@ -439,6 +439,9 @@ body {
 .souv-form-btns { display:flex; gap:8px; }
 .souv-form-cancel { flex:1; padding:10px; background:#F5F5F5; border:none; border-radius:8px; font-size:0.92rem; cursor:pointer; }
 .souv-form-submit { flex:2; padding:10px; background:#4CAF50; color:#fff; border:none; border-radius:8px; font-size:0.92rem; font-weight:600; cursor:pointer; }
+.souv-section { margin-bottom:4px; }
+.souv-cat-label { font-size:0.8rem; font-weight:700; color:#666; padding:14px 4px 6px; border-bottom:1.5px solid #EEEEEE; margin-bottom:8px; letter-spacing:0.03em; }
+.souv-section:first-child .souv-cat-label { padding-top:6px; }
 </style>
 </head>
 <body>
@@ -903,6 +906,10 @@ body {
       <input type="file" id="souv-img-input" accept="image/*" style="display:none" onchange="handleSouvImg(this)">
       <input id="souv-add-name" class="souv-form-input" type="text" placeholder="品名（必填）">
       <input id="souv-add-price" class="souv-form-input" type="text" placeholder="價格（選填，例：¥1,200）">
+      <select id="souv-add-cat" class="souv-form-input" onchange="handleSouvCatChange(this)">
+        <option value="">選擇分類（選填）</option>
+      </select>
+      <input id="souv-add-cat-custom" class="souv-form-input" type="text" placeholder="輸入新分類名稱" style="display:none">
       <div class="souv-form-btns">
         <button class="souv-form-cancel" onclick="closeSouvAddForm()">取消</button>
         <button class="souv-form-submit" onclick="submitSouvAdd()">新增</button>
@@ -910,78 +917,7 @@ body {
     </div>
   </div>
   <div class="souv-body">
-    <div class="souv-grid">
-      <div class="souv-item" data-key="souv-0">
-        <img src="souvenirs/s01.webp" alt="辻利烤巧克力餅乾" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">辻利烤巧克力餅乾</div><div class="souv-price">¥1,101</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-      <div class="souv-item" data-key="souv-1">
-        <img src="souvenirs/s02.webp" alt="辻利京茶麵包脆餅" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">辻利京茶麵包脆餅（抹茶、焙茶）</div><div class="souv-price">¥734</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-      <div class="souv-item" data-key="souv-2">
-        <img src="souvenirs/s03.png" alt="辻利 京らんぐ" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">辻利 京らんぐ</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-      <div class="souv-item" data-key="souv-3">
-        <img src="souvenirs/s04.png" alt="辻利抹茶捲心酥" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">辻利抹茶捲心酥</div><div class="souv-price">¥1,296</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-      <div class="souv-item" data-key="souv-4">
-        <img src="souvenirs/s05.png" alt="辻利貓蛇餅乾" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">辻利貓蛇餅乾</div><div class="souv-price">¥1,296</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-      <div class="souv-item" data-key="souv-5">
-        <img src="souvenirs/s06.png" alt="丸久小山園" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">丸久小山園：宇治抹茶ゆうげん クリームロール</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-      <div class="souv-item" data-key="souv-6">
-        <img src="souvenirs/s07.png" alt="小倉山莊" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">小倉山莊</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-      <div class="souv-item" data-key="souv-7">
-        <img src="souvenirs/s08.png" alt="Gura茶" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">Gura茶</div><div class="souv-price">¥1,860</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-      <div class="souv-item" data-key="souv-8">
-        <img src="souvenirs/s09.png" alt="千壽仙貝" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">千壽仙貝</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-      <div class="souv-item" data-key="souv-9">
-        <img src="souvenirs/s10.jpeg" alt="卡比盲盒" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">卡比盲盒</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-      <div class="souv-item" data-key="souv-10">
-        <img src="souvenirs/s11.png" alt="Okoge仙貝" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">Okoge仙貝 九條蔥和蝦子的Okogehan</div><div class="souv-price">¥1,080</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-      <div class="souv-item" data-key="souv-11">
-        <img src="souvenirs/s12.png" alt="中村藤吉" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">中村藤吉：茶フィーユ</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-      <div class="souv-item" data-key="souv-12">
-        <img src="souvenirs/s13.png" alt="伊藤久右衛門" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">伊藤久右衛門 抹茶塩のえび天せんべい</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-      <div class="souv-item" data-key="souv-13">
-        <img src="souvenirs/s14.png" alt="辻利兵衛本店" loading="lazy" onclick="previewSouv(this.src,this.alt)">
-        <div class="souv-item-body"><div class="souv-name">辻利兵衛本店：碾茶入り宇治抹茶チョコレートクランチ「茶ノ道」</div></div>
-        <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      </div>
-    </div>
+    <div id="souv-body-content"></div>
     <button class="souv-reset" onclick="resetSouvenirs()">重置全部打勾</button>
   </div>
 </div>
@@ -1021,9 +957,7 @@ db.ref('souvenirs').on('value', snap => {
   fbCustom = Array.isArray(data.custom) ? data.custom : (data.custom ? Object.values(data.custom) : []);
   const modal = document.getElementById('souv-modal');
   if (modal && modal.classList.contains('open')) {
-    renderCustomItems();
-    restoreSouvenirs();
-    sortSouvGrid();
+    renderSouvBody();
     renderSouvProgress();
   }
 });
@@ -1295,6 +1229,80 @@ window.addEventListener('scroll', () => {
   backTop.classList.toggle('visible', window.scrollY > 200);
 });
 
+const SOUV_ITEMS = [
+  { key:'souv-0',  img:'souvenirs/s01.webp',  name:'辻利烤巧克力餅乾',                                              price:'¥1,101', cat:'🍵 辻利系' },
+  { key:'souv-1',  img:'souvenirs/s02.webp',  name:'辻利京茶麵包脆餅（抹茶、焙茶）',                              price:'¥734',   cat:'🍵 辻利系' },
+  { key:'souv-2',  img:'souvenirs/s03.png',   name:'辻利 京らんぐ',                                               price:'',       cat:'🍵 辻利系' },
+  { key:'souv-3',  img:'souvenirs/s04.png',   name:'辻利抹茶捲心酥',                                              price:'¥1,296', cat:'🍵 辻利系' },
+  { key:'souv-4',  img:'souvenirs/s05.png',   name:'辻利貓蛇餅乾',                                               price:'¥1,296', cat:'🍵 辻利系' },
+  { key:'souv-5',  img:'souvenirs/s06.png',   name:'丸久小山園：宇治抹茶ゆうげん クリームロール',                  price:'',       cat:'🌿 宇治茶系' },
+  { key:'souv-11', img:'souvenirs/s12.png',   name:'中村藤吉：茶フィーユ',                                        price:'',       cat:'🌿 宇治茶系' },
+  { key:'souv-12', img:'souvenirs/s13.png',   name:'伊藤久右衛門 抹茶塩のえび天せんべい',                          price:'',       cat:'🌿 宇治茶系' },
+  { key:'souv-13', img:'souvenirs/s14.png',   name:'辻利兵衛本店：碾茶入り宇治抹茶チョコレートクランチ「茶ノ道」', price:'',       cat:'🌿 宇治茶系' },
+  { key:'souv-6',  img:'souvenirs/s07.png',   name:'小倉山莊',                                                   price:'',       cat:'🍘 零食仙貝' },
+  { key:'souv-8',  img:'souvenirs/s09.png',   name:'千壽仙貝',                                                   price:'',       cat:'🍘 零食仙貝' },
+  { key:'souv-10', img:'souvenirs/s11.png',   name:'Okoge仙貝 九條蔥和蝦子的Okogehan',                           price:'¥1,080', cat:'🍘 零食仙貝' },
+  { key:'souv-7',  img:'souvenirs/s08.png',   name:'Gura茶',                                                    price:'¥1,860', cat:'🎁 其他' },
+  { key:'souv-9',  img:'souvenirs/s10.jpeg',  name:'卡比盲盒',                                                   price:'',       cat:'🎁 其他' },
+];
+const SOUV_BUILTIN_CATS = ['🍵 辻利系', '🌿 宇治茶系', '🍘 零食仙貝', '🎁 其他'];
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function makeSouvItemEl(key, img, name, price, customIdx) {
+  const el = document.createElement('div');
+  el.className = 'souv-item' + (customIdx !== undefined ? ' souv-item-custom' : '') + (fbChecks[key] ? ' checked' : '');
+  el.dataset.key = key;
+  el.innerHTML =
+    (img
+      ? `<img src="${escHtml(img)}" alt="${escHtml(name)}" loading="lazy" onclick="previewSouv(this.src,this.alt)">`
+      : `<div style="width:100%;aspect-ratio:4/3;background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:2rem;">🛍️</div>`
+    ) +
+    `<div class="souv-item-body"><div class="souv-name">${escHtml(name)}</div>${price ? `<div class="souv-price">${escHtml(price)}</div>` : ''}</div>
+    <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>` +
+    (customIdx !== undefined ? `<div class="souv-del" onclick="event.stopPropagation();deleteSouvItem(${customIdx})">✕</div>` : '');
+  return el;
+}
+function renderSouvBody() {
+  const container = document.getElementById('souv-body-content');
+  container.innerHTML = '';
+  const catMap = {};
+  SOUV_ITEMS.forEach(item => {
+    if (!catMap[item.cat]) catMap[item.cat] = [];
+    catMap[item.cat].push({ key: item.key, img: item.img, name: item.name, price: item.price });
+  });
+  fbCustom.forEach((item, i) => {
+    const cat = item.category || '🛍️ 自訂品項';
+    if (!catMap[cat]) catMap[cat] = [];
+    catMap[cat].push({ key: 'custom-' + i, img: item.img, name: item.name, price: item.price, customIdx: i });
+  });
+  const extraCats = Object.keys(catMap).filter(c => !SOUV_BUILTIN_CATS.includes(c));
+  [...SOUV_BUILTIN_CATS, ...extraCats].forEach(cat => {
+    const items = catMap[cat];
+    if (!items || !items.length) return;
+    const section = document.createElement('div');
+    section.className = 'souv-section';
+    const label = document.createElement('div');
+    label.className = 'souv-cat-label';
+    label.textContent = cat;
+    section.appendChild(label);
+    const grid = document.createElement('div');
+    grid.className = 'souv-grid';
+    [...items]
+      .sort((a, b) => (fbChecks[a.key] ? 1 : 0) - (fbChecks[b.key] ? 1 : 0))
+      .forEach(item => grid.appendChild(makeSouvItemEl(item.key, item.img, item.name, item.price, item.customIdx)));
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+}
+function sortSouvGrid() {
+  document.querySelectorAll('.souv-section .souv-grid').forEach(grid => {
+    const items = [...grid.children];
+    items.sort((a, b) => (a.classList.contains('checked') ? 1 : 0) - (b.classList.contains('checked') ? 1 : 0));
+    items.forEach(el => grid.appendChild(el));
+  });
+}
 function toggleSouv(el, key) {
   el.classList.toggle('checked');
   if (el.classList.contains('checked')) {
@@ -1305,37 +1313,12 @@ function toggleSouv(el, key) {
   renderSouvProgress();
   sortSouvGrid();
 }
-function getSouvOrder(el) {
-  const k = el.dataset.key || '';
-  if (k.startsWith('souv-')) return parseInt(k.replace('souv-',''));
-  if (k.startsWith('custom-')) return 1000 + parseInt(k.replace('custom-',''));
-  return 9999;
-}
-function sortSouvGrid() {
-  const grid = document.querySelector('.souv-grid');
-  const items = [...grid.children];
-  items.sort((a, b) => {
-    const ac = a.classList.contains('checked') ? 1 : 0;
-    const bc = b.classList.contains('checked') ? 1 : 0;
-    if (ac !== bc) return ac - bc;
-    return getSouvOrder(a) - getSouvOrder(b);
-  });
-  items.forEach(el => grid.appendChild(el));
-}
 function renderSouvProgress() {
   let done = 0;
   for (let i = 0; i < 14; i++) if (fbChecks['souv-'+i]) done++;
   for (let i = 0; i < fbCustom.length; i++) if (fbChecks['custom-'+i]) done++;
-  const total = 14 + fbCustom.length;
   const el = document.getElementById('souv-prog');
-  if (el) el.textContent = done + ' / ' + total;
-}
-function restoreSouvenirs() {
-  document.querySelectorAll('.souv-item').forEach(el => {
-    el.classList.remove('checked');
-    if (el.dataset.key && fbChecks[el.dataset.key]) el.classList.add('checked');
-  });
-  renderSouvProgress();
+  if (el) el.textContent = done + ' / ' + (14 + fbCustom.length);
 }
 function resetSouvenirs() {
   if (!confirm('確定要重置全部伴手禮打勾？')) return;
@@ -1343,35 +1326,9 @@ function resetSouvenirs() {
   document.querySelectorAll('.souv-item').forEach(el => el.classList.remove('checked'));
   renderSouvProgress();
 }
-function loadCustomItems() {
-  return fbCustom;
-}
 function saveCustomItems(arr) {
   fbCustom = arr;
   db.ref('souvenirs/custom').set(arr.length > 0 ? arr : null);
-}
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function renderCustomItems() {
-  const grid = document.querySelector('.souv-grid');
-  grid.querySelectorAll('.souv-item-custom').forEach(el => el.remove());
-  const d = load();
-  loadCustomItems().forEach((item, i) => {
-    const key = 'custom-' + i;
-    const el = document.createElement('div');
-    el.className = 'souv-item souv-item-custom' + (d[key] ? ' checked' : '');
-    el.dataset.key = key;
-    el.innerHTML =
-      (item.img
-        ? `<img src="${escHtml(item.img)}" alt="${escHtml(item.name)}" onclick="previewSouv(this.src,this.alt)">`
-        : `<div style="width:100%;aspect-ratio:4/3;background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:2rem;">🛍️</div>`
-      ) +
-      `<div class="souv-item-body"><div class="souv-name">${escHtml(item.name)}</div>${item.price ? `<div class="souv-price">${escHtml(item.price)}</div>` : ''}</div>
-      <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>
-      <div class="souv-del" onclick="event.stopPropagation();deleteSouvItem(${i})">✕</div>`;
-    grid.appendChild(el);
-  });
 }
 function deleteSouvItem(i) {
   if (!confirm('確定刪除這個品項？')) return;
@@ -1387,8 +1344,7 @@ function deleteSouvItem(i) {
   for (let k = 0; k < items.length + 1; k++) updates['souvenirs/checks/custom-' + k] = null;
   Object.keys(newChecks).forEach(k => { updates['souvenirs/checks/' + k] = 1; });
   db.ref().update(updates);
-  renderCustomItems();
-  sortSouvGrid();
+  renderSouvBody();
   renderSouvProgress();
 }
 let pendingImgData = '';
@@ -1416,6 +1372,18 @@ function handleSouvImg(input) {
   };
   reader.readAsDataURL(file);
 }
+function refreshCatOptions() {
+  const sel = document.getElementById('souv-add-cat');
+  const customCats = [...new Set(fbCustom.map(i => i.category).filter(c => c && !SOUV_BUILTIN_CATS.includes(c)))];
+  sel.innerHTML = '<option value="">選擇分類（選填）</option>' +
+    [...SOUV_BUILTIN_CATS, ...customCats].map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('') +
+    '<option value="__custom__">＋ 自訂分類名稱</option>';
+}
+function handleSouvCatChange(sel) {
+  const inp = document.getElementById('souv-add-cat-custom');
+  inp.style.display = sel.value === '__custom__' ? '' : 'none';
+  if (sel.value !== '__custom__') inp.value = '';
+}
 function openSouvAddForm() {
   pendingImgData = '';
   document.getElementById('souv-add-name').value = '';
@@ -1424,6 +1392,10 @@ function openSouvAddForm() {
   const prev = document.getElementById('souv-preview-img');
   prev.src = ''; prev.style.display = 'none';
   document.getElementById('souv-preview-hint').style.display = '';
+  refreshCatOptions();
+  document.getElementById('souv-add-cat').value = '';
+  document.getElementById('souv-add-cat-custom').style.display = 'none';
+  document.getElementById('souv-add-cat-custom').value = '';
   document.getElementById('souv-add-form').style.display = 'flex';
 }
 function closeSouvAddForm() {
@@ -1433,27 +1405,28 @@ function submitSouvAdd() {
   const name = document.getElementById('souv-add-name').value.trim();
   if (!name) { alert('請輸入品名'); return; }
   const price = document.getElementById('souv-add-price').value.trim();
-  const items = loadCustomItems();
-  items.push({ name, price, img: pendingImgData });
+  const catSel = document.getElementById('souv-add-cat').value;
+  const category = catSel === '__custom__'
+    ? document.getElementById('souv-add-cat-custom').value.trim()
+    : catSel;
+  const items = [...fbCustom];
+  items.push({ name, price, img: pendingImgData, category });
   saveCustomItems(items);
   closeSouvAddForm();
-  renderCustomItems();
-  sortSouvGrid();
+  renderSouvBody();
   renderSouvProgress();
 }
 function previewSouv(src, name) {
   document.getElementById('souv-lb-img').src = src;
   document.getElementById('souv-lb-name').textContent = name;
-  const lb = document.getElementById('souv-lightbox');
-  lb.style.display = 'flex';
+  document.getElementById('souv-lightbox').style.display = 'flex';
 }
 function closeLightbox() {
   document.getElementById('souv-lightbox').style.display = 'none';
 }
 function openSouvenirModal() {
-  renderCustomItems();
-  restoreSouvenirs();
-  sortSouvGrid();
+  renderSouvBody();
+  renderSouvProgress();
   document.getElementById('souv-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
