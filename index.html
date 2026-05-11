@@ -440,8 +440,14 @@ body {
 .souv-form-cancel { flex:1; padding:10px; background:#F5F5F5; border:none; border-radius:8px; font-size:0.92rem; cursor:pointer; }
 .souv-form-submit { flex:2; padding:10px; background:#4CAF50; color:#fff; border:none; border-radius:8px; font-size:0.92rem; font-weight:600; cursor:pointer; }
 .souv-section { margin-bottom:4px; }
-.souv-cat-label { font-size:0.8rem; font-weight:700; color:#666; padding:14px 4px 6px; border-bottom:1.5px solid #EEEEEE; margin-bottom:8px; letter-spacing:0.03em; }
+.souv-cat-label { font-size:0.8rem; font-weight:700; color:#666; padding:14px 4px 6px; border-bottom:1.5px solid #EEEEEE; margin-bottom:8px; letter-spacing:0.03em; display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none; }
 .souv-section:first-child .souv-cat-label { padding-top:6px; }
+.souv-cat-arrow { font-size:0.75rem; color:#bbb; }
+.souv-section.collapsed .souv-grid { display:none; }
+.souv-edit-btn { position:absolute; top:8px; left:8px; width:26px; height:26px; border-radius:50%; background:rgba(70,130,220,0.82); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; z-index:2; }
+.souv-note-text { font-size:0.75rem; color:#999; margin-top:3px; line-height:1.4; }
+.souv-form-textarea { width:100%; padding:10px 12px; border:1.5px solid #E0E0E0; border-radius:8px; font-size:0.9rem; margin-bottom:8px; box-sizing:border-box; font-family:inherit; resize:vertical; min-height:60px; }
+.souv-form-delete { width:100%; padding:9px; background:#fff; border:1.5px solid #e55; border-radius:8px; font-size:0.88rem; color:#e55; cursor:pointer; margin-bottom:8px; }
 </style>
 </head>
 <body>
@@ -910,9 +916,32 @@ body {
         <option value="">選擇分類（選填）</option>
       </select>
       <input id="souv-add-cat-custom" class="souv-form-input" type="text" placeholder="輸入新分類名稱" style="display:none">
+      <textarea id="souv-add-note" class="souv-form-textarea" placeholder="備註（選填，例：Day3 京都車站有賣）"></textarea>
       <div class="souv-form-btns">
         <button class="souv-form-cancel" onclick="closeSouvAddForm()">取消</button>
         <button class="souv-form-submit" onclick="submitSouvAdd()">新增</button>
+      </div>
+    </div>
+  </div>
+  <div id="souv-edit-form" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.5); z-index:10; align-items:center; justify-content:center;">
+    <div class="souv-form-card">
+      <div class="souv-form-title">編輯品項</div>
+      <div class="souv-form-preview" onclick="document.getElementById('souv-edit-img-input').click()">
+        <img id="souv-edit-preview-img" src="" alt="" style="display:none">
+        <span class="souv-form-hint" id="souv-edit-preview-hint">點此更換圖片（選填）</span>
+      </div>
+      <input type="file" id="souv-edit-img-input" accept="image/*" style="display:none" onchange="handleSouvEditImg(this)">
+      <input id="souv-edit-name" class="souv-form-input" type="text" placeholder="品名（必填）">
+      <input id="souv-edit-price" class="souv-form-input" type="text" placeholder="價格（選填，例：¥1,200）">
+      <select id="souv-edit-cat" class="souv-form-input" onchange="handleSouvEditCatChange(this)">
+        <option value="">選擇分類（選填）</option>
+      </select>
+      <input id="souv-edit-cat-custom" class="souv-form-input" type="text" placeholder="輸入新分類名稱" style="display:none">
+      <textarea id="souv-edit-note" class="souv-form-textarea" placeholder="備註（選填）"></textarea>
+      <button class="souv-form-delete" onclick="deleteSouvFromEdit()">刪除此品項</button>
+      <div class="souv-form-btns">
+        <button class="souv-form-cancel" onclick="closeSouvEditForm()">取消</button>
+        <button class="souv-form-submit" onclick="submitSouvEdit()">儲存</button>
       </div>
     </div>
   </div>
@@ -1242,31 +1271,46 @@ const SOUV_ITEMS = [
   { key:'souv-6',  img:'souvenirs/s07.png',   name:'小倉山莊',                                                   price:'',       cat:'🍘 零食仙貝' },
   { key:'souv-8',  img:'souvenirs/s09.png',   name:'千壽仙貝',                                                   price:'',       cat:'🍘 零食仙貝' },
   { key:'souv-10', img:'souvenirs/s11.png',   name:'Okoge仙貝 九條蔥和蝦子的Okogehan',                           price:'¥1,080', cat:'🍘 零食仙貝' },
-  { key:'souv-7',  img:'souvenirs/s08.png',   name:'Gura茶',                                                    price:'¥1,860', cat:'🎁 其他' },
+  { key:'souv-7',  img:'souvenirs/s08.png',   name:'Gura茶',                                                    price:'¥1,860', cat:'🍵 抹茶' },
   { key:'souv-9',  img:'souvenirs/s10.jpeg',  name:'卡比盲盒',                                                   price:'',       cat:'🎁 其他' },
 ];
-const SOUV_BUILTIN_CATS = ['🍵 辻利系', '🌿 宇治茶系', '🍘 零食仙貝', '🎁 其他'];
+const SOUV_BUILTIN_CATS = ['🍵 辻利系', '🌿 宇治茶系', '🍵 抹茶', '🍘 零食仙貝', '🎁 其他'];
 
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function makeSouvItemEl(key, img, name, price, customIdx) {
+function makeSouvItemEl(key, img, name, price, note, customIdx) {
   const el = document.createElement('div');
   el.className = 'souv-item' + (customIdx !== undefined ? ' souv-item-custom' : '') + (fbChecks[key] ? ' checked' : '');
   el.dataset.key = key;
+  const noteHtml = note ? `<div class="souv-note-text">${escHtml(note)}</div>` : '';
   el.innerHTML =
     (img
       ? `<img src="${escHtml(img)}" alt="${escHtml(name)}" loading="lazy" onclick="previewSouv(this.src,this.alt)">`
       : `<div style="width:100%;aspect-ratio:4/3;background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:2rem;">🛍️</div>`
     ) +
-    `<div class="souv-item-body"><div class="souv-name">${escHtml(name)}</div>${price ? `<div class="souv-price">${escHtml(price)}</div>` : ''}</div>
+    `<div class="souv-item-body"><div class="souv-name">${escHtml(name)}</div>${price ? `<div class="souv-price">${escHtml(price)}</div>` : ''}${noteHtml}</div>
     <div class="souv-check" onclick="event.stopPropagation();toggleSouv(this.parentElement,this.parentElement.dataset.key)"></div>` +
-    (customIdx !== undefined ? `<div class="souv-del" onclick="event.stopPropagation();deleteSouvItem(${customIdx})">✕</div>` : '');
+    (customIdx !== undefined ? `<div class="souv-edit-btn" onclick="event.stopPropagation();openSouvEditForm(${customIdx})">✏️</div>` : '');
   return el;
+}
+function getSouvCollapsed() { return JSON.parse(localStorage.getItem('souv-collapsed') || '{}'); }
+function toggleSouvCat(cat) {
+  const d = getSouvCollapsed();
+  const nowCollapsed = !d[cat];
+  if (nowCollapsed) d[cat] = 1; else delete d[cat];
+  localStorage.setItem('souv-collapsed', JSON.stringify(d));
+  const section = document.querySelector(`.souv-section[data-cat="${CSS.escape(cat)}"]`);
+  if (section) {
+    section.classList.toggle('collapsed', nowCollapsed);
+    const arrow = section.querySelector('.souv-cat-arrow');
+    if (arrow) arrow.textContent = nowCollapsed ? '▸' : '▾';
+  }
 }
 function renderSouvBody() {
   const container = document.getElementById('souv-body-content');
   container.innerHTML = '';
+  const collapsed = getSouvCollapsed();
   const catMap = {};
   SOUV_ITEMS.forEach(item => {
     if (!catMap[item.cat]) catMap[item.cat] = [];
@@ -1275,29 +1319,32 @@ function renderSouvBody() {
   fbCustom.forEach((item, i) => {
     const cat = item.category || '🛍️ 自訂品項';
     if (!catMap[cat]) catMap[cat] = [];
-    catMap[cat].push({ key: 'custom-' + i, img: item.img, name: item.name, price: item.price, customIdx: i });
+    catMap[cat].push({ key: 'custom-' + i, img: item.img, name: item.name, price: item.price, note: item.note, customIdx: i });
   });
   const extraCats = Object.keys(catMap).filter(c => !SOUV_BUILTIN_CATS.includes(c));
   [...SOUV_BUILTIN_CATS, ...extraCats].forEach(cat => {
     const items = catMap[cat];
     if (!items || !items.length) return;
+    const isCollapsed = !!collapsed[cat];
     const section = document.createElement('div');
-    section.className = 'souv-section';
+    section.className = 'souv-section' + (isCollapsed ? ' collapsed' : '');
+    section.dataset.cat = cat;
     const label = document.createElement('div');
     label.className = 'souv-cat-label';
-    label.textContent = cat;
+    label.onclick = () => toggleSouvCat(cat);
+    label.innerHTML = `<span>${escHtml(cat)}</span><span class="souv-cat-arrow">${isCollapsed ? '▸' : '▾'}</span>`;
     section.appendChild(label);
     const grid = document.createElement('div');
     grid.className = 'souv-grid';
     [...items]
       .sort((a, b) => (fbChecks[a.key] ? 1 : 0) - (fbChecks[b.key] ? 1 : 0))
-      .forEach(item => grid.appendChild(makeSouvItemEl(item.key, item.img, item.name, item.price, item.customIdx)));
+      .forEach(item => grid.appendChild(makeSouvItemEl(item.key, item.img, item.name, item.price, item.note, item.customIdx)));
     section.appendChild(grid);
     container.appendChild(section);
   });
 }
 function sortSouvGrid() {
-  document.querySelectorAll('.souv-section .souv-grid').forEach(grid => {
+  document.querySelectorAll('.souv-section:not(.collapsed) .souv-grid').forEach(grid => {
     const items = [...grid.children];
     items.sort((a, b) => (a.classList.contains('checked') ? 1 : 0) - (b.classList.contains('checked') ? 1 : 0));
     items.forEach(el => grid.appendChild(el));
@@ -1331,7 +1378,6 @@ function saveCustomItems(arr) {
   db.ref('souvenirs/custom').set(arr.length > 0 ? arr : null);
 }
 function deleteSouvItem(i) {
-  if (!confirm('確定刪除這個品項？')) return;
   const items = [...fbCustom];
   const newChecks = {};
   for (let j = 0; j < items.length; j++) {
@@ -1347,10 +1393,7 @@ function deleteSouvItem(i) {
   renderSouvBody();
   renderSouvProgress();
 }
-let pendingImgData = '';
-function handleSouvImg(input) {
-  const file = input.files[0];
-  if (!file) return;
+function compressImg(file, onDone) {
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
@@ -1358,22 +1401,27 @@ function handleSouvImg(input) {
       const canvas = document.createElement('canvas');
       const MAX = 400;
       let w = img.width, h = img.height;
-      if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-      else { w = Math.round(w * MAX / h); h = MAX; }
+      if (w > h) { h = Math.round(h * MAX / w); w = MAX; } else { w = Math.round(w * MAX / h); h = MAX; }
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      pendingImgData = canvas.toDataURL('image/jpeg', 0.72);
-      const prev = document.getElementById('souv-preview-img');
-      prev.src = pendingImgData;
-      prev.style.display = 'block';
-      document.getElementById('souv-preview-hint').style.display = 'none';
+      onDone(canvas.toDataURL('image/jpeg', 0.72));
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
-function refreshCatOptions() {
-  const sel = document.getElementById('souv-add-cat');
+let pendingImgData = '';
+function handleSouvImg(input) {
+  const file = input.files[0]; if (!file) return;
+  compressImg(file, data => {
+    pendingImgData = data;
+    const prev = document.getElementById('souv-preview-img');
+    prev.src = data; prev.style.display = 'block';
+    document.getElementById('souv-preview-hint').style.display = 'none';
+  });
+}
+function refreshCatOptionsFor(selectId) {
+  const sel = document.getElementById(selectId);
   const customCats = [...new Set(fbCustom.map(i => i.category).filter(c => c && !SOUV_BUILTIN_CATS.includes(c)))];
   sel.innerHTML = '<option value="">選擇分類（選填）</option>' +
     [...SOUV_BUILTIN_CATS, ...customCats].map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('') +
@@ -1384,37 +1432,93 @@ function handleSouvCatChange(sel) {
   inp.style.display = sel.value === '__custom__' ? '' : 'none';
   if (sel.value !== '__custom__') inp.value = '';
 }
+function handleSouvEditCatChange(sel) {
+  const inp = document.getElementById('souv-edit-cat-custom');
+  inp.style.display = sel.value === '__custom__' ? '' : 'none';
+  if (sel.value !== '__custom__') inp.value = '';
+}
 function openSouvAddForm() {
   pendingImgData = '';
   document.getElementById('souv-add-name').value = '';
   document.getElementById('souv-add-price').value = '';
+  document.getElementById('souv-add-note').value = '';
   document.getElementById('souv-img-input').value = '';
   const prev = document.getElementById('souv-preview-img');
   prev.src = ''; prev.style.display = 'none';
   document.getElementById('souv-preview-hint').style.display = '';
-  refreshCatOptions();
+  refreshCatOptionsFor('souv-add-cat');
   document.getElementById('souv-add-cat').value = '';
   document.getElementById('souv-add-cat-custom').style.display = 'none';
   document.getElementById('souv-add-cat-custom').value = '';
   document.getElementById('souv-add-form').style.display = 'flex';
 }
-function closeSouvAddForm() {
-  document.getElementById('souv-add-form').style.display = 'none';
-}
+function closeSouvAddForm() { document.getElementById('souv-add-form').style.display = 'none'; }
 function submitSouvAdd() {
   const name = document.getElementById('souv-add-name').value.trim();
   if (!name) { alert('請輸入品名'); return; }
   const price = document.getElementById('souv-add-price').value.trim();
+  const note = document.getElementById('souv-add-note').value.trim();
   const catSel = document.getElementById('souv-add-cat').value;
-  const category = catSel === '__custom__'
-    ? document.getElementById('souv-add-cat-custom').value.trim()
-    : catSel;
+  const category = catSel === '__custom__' ? document.getElementById('souv-add-cat-custom').value.trim() : catSel;
   const items = [...fbCustom];
-  items.push({ name, price, img: pendingImgData, category });
+  items.push({ name, price, img: pendingImgData, category, note });
   saveCustomItems(items);
   closeSouvAddForm();
   renderSouvBody();
   renderSouvProgress();
+}
+let editingIdx = -1;
+let pendingEditImgData = null;
+function openSouvEditForm(i) {
+  editingIdx = i;
+  const item = fbCustom[i];
+  pendingEditImgData = null;
+  document.getElementById('souv-edit-name').value = item.name || '';
+  document.getElementById('souv-edit-price').value = item.price || '';
+  document.getElementById('souv-edit-note').value = item.note || '';
+  document.getElementById('souv-edit-img-input').value = '';
+  const prev = document.getElementById('souv-edit-preview-img');
+  if (item.img) { prev.src = item.img; prev.style.display = 'block'; document.getElementById('souv-edit-preview-hint').style.display = 'none'; }
+  else { prev.src = ''; prev.style.display = 'none'; document.getElementById('souv-edit-preview-hint').style.display = ''; }
+  refreshCatOptionsFor('souv-edit-cat');
+  const catSel = document.getElementById('souv-edit-cat');
+  const allCats = [...SOUV_BUILTIN_CATS, ...new Set(fbCustom.map(it => it.category).filter(c => c && !SOUV_BUILTIN_CATS.includes(c)))];
+  const cat = item.category || '';
+  if (allCats.includes(cat)) { catSel.value = cat; document.getElementById('souv-edit-cat-custom').style.display = 'none'; }
+  else if (cat) { catSel.value = '__custom__'; document.getElementById('souv-edit-cat-custom').style.display = ''; document.getElementById('souv-edit-cat-custom').value = cat; }
+  else { catSel.value = ''; document.getElementById('souv-edit-cat-custom').style.display = 'none'; }
+  document.getElementById('souv-edit-form').style.display = 'flex';
+}
+function closeSouvEditForm() { document.getElementById('souv-edit-form').style.display = 'none'; editingIdx = -1; }
+function handleSouvEditImg(input) {
+  const file = input.files[0]; if (!file) return;
+  compressImg(file, data => {
+    pendingEditImgData = data;
+    const prev = document.getElementById('souv-edit-preview-img');
+    prev.src = data; prev.style.display = 'block';
+    document.getElementById('souv-edit-preview-hint').style.display = 'none';
+  });
+}
+function submitSouvEdit() {
+  const name = document.getElementById('souv-edit-name').value.trim();
+  if (!name) { alert('請輸入品名'); return; }
+  const price = document.getElementById('souv-edit-price').value.trim();
+  const note = document.getElementById('souv-edit-note').value.trim();
+  const catSel = document.getElementById('souv-edit-cat').value;
+  const category = catSel === '__custom__' ? document.getElementById('souv-edit-cat-custom').value.trim() : catSel;
+  const items = [...fbCustom];
+  const img = pendingEditImgData !== null ? pendingEditImgData : (items[editingIdx].img || '');
+  items[editingIdx] = { name, price, img, category, note };
+  saveCustomItems(items);
+  closeSouvEditForm();
+  renderSouvBody();
+  renderSouvProgress();
+}
+function deleteSouvFromEdit() {
+  if (!confirm('確定刪除這個品項？')) return;
+  const i = editingIdx;
+  closeSouvEditForm();
+  deleteSouvItem(i);
 }
 function previewSouv(src, name) {
   document.getElementById('souv-lb-img').src = src;
