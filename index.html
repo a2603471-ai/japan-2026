@@ -691,9 +691,14 @@ body {
   <div class="day-info-section">
     <div class="day-info-toggle" onclick="toggleDayInfo('d3-info0')">🧳 行李寄送 Crosta <span class="di-arrow">▼</span></div>
     <div class="day-info-content" id="d3-info0">
-      <div class="di-row">📦 寄件：<a href="https://maps.app.goo.gl/jDrUBhKDag923rom7" target="_blank">Crosta 京都站</a>｜中央剪票口 B1</div>
-      <div class="di-row">📬 取件：<a href="https://maps.app.goo.gl/ornRcvkLp82qGzcp7" target="_blank">Crosta 大阪站</a>｜JR大阪駅1F 日本旅行横（LUCUA對面）</div>
-      <div class="di-row">💴 費用：¥2,500 起／件｜取件時間 17:00–20:00</div>
+      <div class="di-label">📦 寄件</div>
+      <div class="di-row"><a href="https://maps.app.goo.gl/jDrUBhKDag923rom7" target="_blank">Crosta 京都站</a>｜JR京都站（京都駅ビル）地下中央剪票口 B1</div>
+      <div class="di-row">📞 075-352-5437</div>
+      <div class="di-label">📬 取件</div>
+      <div class="di-row"><a href="https://maps.app.goo.gl/ornRcvkLp82qGzcp7" target="_blank">Crosta 大阪站</a>｜JR大阪駅1F 日本旅行横｜中央改札口｜LUCUA 對面</div>
+      <div class="di-row">📞 080-5940-3085</div>
+      <div class="di-label">💴 費用 & 注意</div>
+      <div class="di-row">¥2,500 起／件｜取件時間 17:00–20:00</div>
       <div class="di-row">⚠️ 取件請備好寄件收據</div>
     </div>
   </div>
@@ -716,49 +721,48 @@ body {
 <!-- ===== Day 5 ===== -->
 <div class="day-content" id="day-4">
   <div class="day-header">
-    <h2>🌆 5/18（週一）新世界・阿倍野・道頓堀</h2>
+    <h2>🌆 5/18（週一）心齋橋 → 阿倍野・芙莉蓮</h2>
     <p>大阪 南線</p>
     <div class="day-progress" id="prog-4"></div>
   </div>
+  <div class="alert">🗺️ 全日動線：大國町 → 心齋橋（PARCO・BIG STEP）→ 阿倍野ハルカス → 大國町</div>
   <div class="schedule-list">
-    <div class="schedule-item" onclick="toggle(this,'4-0')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">09:00</div><div class="item-name">🌟 芙莉蓮 × 阿倍野 Harukas 300｜16F 兌換入場｜¥2,500</div><span class="item-tag tag-sight">景點</span></div><a href="https://maps.app.goo.gl/hpvQ8BbvDDcjiwBK6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-1')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍱 芙莉蓮餐廳</div><span class="item-tag tag-food">餐食</span></div></div>
-    <div class="schedule-item" onclick="toggle(this,'4-2')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">12:00</div><div class="item-name">🍱 伊藤洋華堂｜阿倍野 Q's Mall B1–2F</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/xRamjuMNhyjDEu859" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-3')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ ONE PIECE｜阿倍野 Q's Mall 3F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/rwgdfJcRNWzZ8PY58" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-4')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ Snoopy Town Shop｜阿倍野 Q's Mall 3F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/xRamjuMNhyjDEu859" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-5')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ #C-pla｜阿倍野 Q's Mall 3F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/6vbfDhGp4QejJfZG7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-6')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 3COINS｜天王寺MIO廣場館 2F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/VE5wbajHCPmUEL1J9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-7')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ #C-pla｜天王寺MIO店 5F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/DuWuUJh6XNcd3Swp6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-8')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">15:00</div><div class="item-name">🚇 移動至心齋橋</div><span class="item-tag tag-transport">交通</span></div></div>
-    <div class="schedule-item" onclick="toggle(this,'4-9')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 3COINS｜難波City B2</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/KKoTdJNGr2PYDfNMA" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-10')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 牛奶饅頭月化粧</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/83Sbj3HPTd5uJQ8J7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-11')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ Bic Camera 難波</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/snSvEFSwtmNWRfxC8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-12')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ #C-pla+ 心斎橋筋店</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/jQggnWy2CpnyqPm79" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-13')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 MOOKEN｜泡芙</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/6eWokc7erS8txy1L6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-14')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 Le Croissant｜可頌</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/QhdRqRMHUPvqhpEa8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-15')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 Mattari-Purin｜布丁</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/wBP35ewZhXdURpWa6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-16')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ PARCO｜動漫 6F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/sjsT2dY3wz9TTir29" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-17')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ BIG STEP</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/m7xz4U375517bKHV6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'4-18')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">19:00</div><div class="item-name">🍱 Takoman たこ萬｜關東煮</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/2BGvGpa4NWhQAjjB8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-0')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">11:00</div><div class="item-name">🍰 MOOKEN｜泡芙</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/6eWokc7erS8txy1L6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-1')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 Le Croissant｜可頌</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/QhdRqRMHUPvqhpEa8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-2')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 Mattari-Purin｜布丁</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/wBP35ewZhXdURpWa6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-3')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 牛奶饅頭月化粧</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/83Sbj3HPTd5uJQ8J7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-4')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 3COINS｜難波City B2</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/KKoTdJNGr2PYDfNMA" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-5')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ #C-pla+ 心斎橋筋店</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/jQggnWy2CpnyqPm79" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-6')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ BIG STEP</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/m7xz4U375517bKHV6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-7')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ PARCO｜動漫 6F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/sjsT2dY3wz9TTir29" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-8')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">14:00</div><div class="item-name">🚇 移動至天王寺</div><span class="item-tag tag-transport">交通</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'4-9')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍱 伊藤洋華堂｜阿倍野 Q's Mall B1–2F</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/xRamjuMNhyjDEu859" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-10')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ ONE PIECE｜阿倍野 Q's Mall 3F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/rwgdfJcRNWzZ8PY58" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-11')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ Snoopy Town Shop｜阿倍野 Q's Mall 3F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/xRamjuMNhyjDEu859" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-12')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ #C-pla｜阿倍野 Q's Mall 3F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/6vbfDhGp4QejJfZG7" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-13')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ 3COINS｜天王寺MIO廣場館 2F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/VE5wbajHCPmUEL1J9" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-14')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ #C-pla｜天王寺MIO店 5F</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/DuWuUJh6XNcd3Swp6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-15')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🛍️ Bic Camera 難波</div><span class="item-tag tag-shop">購物</span></div><a href="https://maps.app.goo.gl/snSvEFSwtmNWRfxC8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-16')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">17:00</div><div class="item-name">🌟 芙莉蓮 × 阿倍野 Harukas 300｜16F 兌換入場</div><span class="item-tag tag-sight">景點</span></div><a href="https://maps.app.goo.gl/hpvQ8BbvDDcjiwBK6" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
+    <div class="schedule-item" onclick="toggle(this,'4-17')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍱 芙莉蓮餐廳</div><span class="item-tag tag-food">餐食</span></div></div>
   </div>
   <div class="day-info-section">
     <div class="day-info-toggle" onclick="toggleDayInfo('d4-info0')">🚇 交通動線 <span class="di-arrow">▼</span></div>
     <div class="day-info-content" id="d4-info0">
-      <div class="di-row">大國町 → 天王寺（御堂筋線）：約 5 分，¥170，步行 5 分達ハルカス</div>
-      <div class="di-row">心齋橋 → 道頓堀：步行約 5 分，往南走心齋橋筋即達</div>
-      <div class="di-row">道頓堀 → 大國町：難波站搭御堂筋線 1 站，¥170</div>
+      <div class="di-row">大國町 → 心齋橋（御堂筋線）：約 5 分，¥170</div>
+      <div class="di-row">心齋橋 → 天王寺（御堂筋線）：約 5 分，¥170，步行 5 分達ハルカス</div>
+      <div class="di-row">天王寺 → 大國町（御堂筋線）：約 5 分，¥170</div>
       <div class="di-row">💡 建議使用大阪 Metro 一日券（¥820），搭超過 4 趟即回本</div>
     </div>
   </div>
   <div class="day-info-section">
-    <div class="day-info-toggle" onclick="toggleDayInfo('d4-info1')">🏪 晚餐候補（道頓堀） <span class="di-arrow">▼</span></div>
+    <div class="day-info-toggle" onclick="toggleDayInfo('d4-info1')">🌅 芙莉蓮 × 阿倍野 <span class="di-arrow">▼</span></div>
     <div class="day-info-content" id="d4-info1">
-      <div class="di-row"><a href="https://maps.app.goo.gl/5v8D8m5mG7GkHv2e9" target="_blank">🍜 Mugen Ramen Sennichimae</a>｜拉麵</div>
-      <div class="di-row"><a href="https://maps.app.goo.gl/tFf4SzRYKAWc7f7PA" target="_blank">🍜 Creo-Ru Takoyaki &amp; Okonomiyaki</a>｜大阪燒</div>
-      <div class="di-row"><a href="https://maps.app.goo.gl/vkq5B7X2RQ1J3z9E8" target="_blank">🍣 Yakiniku Kitan Hozenji</a>｜燒肉</div>
+      <div class="di-row">阿倍野 Harukas 16 樓展望台售票處兌換入場票</div>
+      <div class="di-row">⏰ 17:00 前往 16F 兌換；建議提前抵達以免排隊</div>
     </div>
   </div>
-  <button class="reset-btn" onclick="resetDay(4,19)">重置今日打勾</button>
+  <button class="reset-btn" onclick="resetDay(4,18)">重置今日打勾</button>
 </div>
 
 <!-- ===== Day 6 ===== -->
@@ -782,7 +786,7 @@ body {
     <div class="schedule-item" onclick="toggle(this,'5-10')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🐙 Hanadako｜生蔥章魚燒</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/twPFzsqrVFEURCjY8" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
     <div class="schedule-item" onclick="toggle(this,'5-11')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-name">🍰 grenier｜千層酥</div><span class="item-tag tag-food">美食</span></div><a href="https://maps.app.goo.gl/u1FTGfEQrXb4t4P76" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
     <div class="schedule-item" onclick="toggle(this,'5-12')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">彈性</div><div class="item-name">🏠 住宿休息或直接前往心齋橋</div><span class="item-tag tag-transport">交通</span></div><a href="https://maps.app.goo.gl/Ewz2cwqT2q6fYwmKA" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
-    <div class="schedule-item" onclick="toggle(this,'5-13')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">18:00</div><div class="item-name">🍱 晚餐（待定）</div><span class="item-tag tag-food">餐食</span></div></div>
+    <div class="schedule-item" onclick="toggle(this,'5-13')"><div class="item-checkbox">✓</div><div class="item-body"><div class="item-time">19:00</div><div class="item-name">🍱 炭燒富士鰻魚 大阪梅田店（已預約）</div><span class="item-tag tag-food">餐食</span></div><a href="https://maps.app.goo.gl/dETuRn65kzuJmDX98" target="_blank" onclick="event.stopPropagation()" class="map-link">📍</a></div>
   </div>
   <div class="day-info-section">
     <div class="day-info-toggle" onclick="toggleDayInfo('d5-info0')">🚇 交通動線 <span class="di-arrow">▼</span></div>
@@ -791,6 +795,14 @@ body {
       <div class="di-row">梅田 → 心齋橋：御堂筋線 3 站，約 7 分，¥230</div>
       <div class="di-row">心齋橋 → 大國町：御堂筋線 2 站，約 5 分，¥170</div>
       <div class="di-row">💡 建議使用大阪 Metro 一日券（¥820），搭超過 4 趟即回本</div>
+    </div>
+  </div>
+  <div class="day-info-section">
+    <div class="day-info-toggle" onclick="toggleDayInfo('d5-info-rsv')">🍖 燒肉、鰻魚預訂資訊 <span class="di-arrow">▼</span></div>
+    <div class="day-info-content" id="d5-info-rsv">
+      <div class="di-label">🥩 焼肉うしごろ 梅田店</div>
+      <div class="di-row">📅 2026-5-19（星期二）11:00（JST）</div>
+      <div class="di-row">👥 2 名｜預訂者：YENLING CHANG</div>
     </div>
   </div>
   <div class="day-info-section">
@@ -807,6 +819,7 @@ body {
     <div class="day-info-toggle" onclick="toggleDayInfo('d5-info2')">🗒️ 明日出發提醒 <span class="di-arrow">▼</span></div>
     <div class="day-info-content" id="d5-info2">
       <div class="di-row">✅ 今晚完成收行李，確認虎航隨身行李 7kg 限制</div>
+      <div class="di-row">✅ HARUKA 天王寺發車鎖定 09:00 班次（不趕可改備選 JR 普通車）</div>
       <div class="di-row">✅ 確認房東行李存放方式（退房 10:00，需 08:00 前離開）</div>
       <div class="di-row">✅ KIX T1 國際出發在 B 區，出境後可補購免稅商品</div>
     </div>
