@@ -907,9 +907,10 @@ body {
       <div class="souv-form-title">新增伴手禮</div>
       <div class="souv-form-preview" onclick="document.getElementById('souv-img-input').click()">
         <img id="souv-preview-img" src="" alt="" style="display:none">
-        <span class="souv-form-hint" id="souv-preview-hint">點此選擇圖片（選填）</span>
+        <span class="souv-form-hint" id="souv-preview-hint">點此選圖（選填）</span>
       </div>
       <input type="file" id="souv-img-input" accept="image/*" style="display:none" onchange="handleSouvImg(this)">
+      <button type="button" onclick="pasteSouvImg()" style="width:100%;padding:8px;margin-bottom:10px;border:1.5px dashed #BBBBBB;border-radius:8px;background:#FAFAFA;color:#888;font-size:0.88rem;cursor:pointer;">📋 貼上圖片</button>
       <input id="souv-add-name" class="souv-form-input" type="text" placeholder="品名（必填）">
       <input id="souv-add-price" class="souv-form-input" type="text" placeholder="價格（選填，例：¥1,200）">
       <select id="souv-add-cat" class="souv-form-input" onchange="handleSouvCatChange(this)">
@@ -1413,12 +1414,36 @@ function compressImg(file, onDone) {
 let pendingImgData = '';
 function handleSouvImg(input) {
   const file = input.files[0]; if (!file) return;
+  applySouvImgFile(file);
+}
+function applySouvImgFile(file) {
   compressImg(file, data => {
     pendingImgData = data;
     const prev = document.getElementById('souv-preview-img');
     prev.src = data; prev.style.display = 'block';
     document.getElementById('souv-preview-hint').style.display = 'none';
   });
+}
+document.addEventListener('paste', function(e) {
+  if (document.getElementById('souv-add-form').style.display !== 'flex') return;
+  const items = e.clipboardData && e.clipboardData.items;
+  if (!items) return;
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].type.indexOf('image') !== -1) { applySouvImgFile(items[i].getAsFile()); break; }
+  }
+});
+async function pasteSouvImg() {
+  if (!navigator.clipboard || !navigator.clipboard.read) {
+    alert('此瀏覽器不支援，請改用「點此選圖」'); return;
+  }
+  try {
+    const items = await navigator.clipboard.read();
+    for (const item of items) {
+      const t = item.types.find(t => t.startsWith('image/'));
+      if (t) { applySouvImgFile(new File([await item.getType(t)], 'paste.jpg', {type: t})); return; }
+    }
+    alert('剪貼簿裡沒有圖片，請先複製一張圖片');
+  } catch { alert('請先複製一張圖片，再按貼上'); }
 }
 function refreshCatOptionsFor(selectId) {
   const sel = document.getElementById(selectId);
