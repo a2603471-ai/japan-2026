@@ -442,7 +442,7 @@ body {
 .souv-section { margin-bottom:4px; }
 .souv-cat-label { font-size:0.8rem; font-weight:700; color:#666; padding:14px 4px 6px; border-bottom:1.5px solid #EEEEEE; margin-bottom:8px; letter-spacing:0.03em; display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none; gap:2px; }
 .souv-section:first-child .souv-cat-label { padding-top:6px; }
-.souv-cat-arrow { font-size:1rem; color:#bbb; padding:6px 8px; flex-shrink:0; }
+.souv-cat-arrow { font-size:1.15rem; color:#999; padding:6px 10px; flex-shrink:0; font-weight:700; }
 .souv-cat-rename-btn { font-size:0.88rem; color:#bbb; padding:6px 8px; margin-left:2px; cursor:pointer; flex-shrink:0; }
 .souv-cat-rename-btn:hover { color:#888; }
 .souv-cat-rename-input { font-size:0.8rem; font-weight:700; color:#666; border:1.5px solid #ccc; border-radius:4px; padding:2px 6px; width:120px; font-family:inherit; }
@@ -1360,7 +1360,7 @@ function renderSouvBody() {
     label.className = 'souv-cat-label';
     label.onclick = () => toggleSouvCat(cat);
     const origCat = Object.keys(fbCatAliases).find(k => fbCatAliases[k] === cat) || cat;
-    label.innerHTML = `<span style="flex:1">${escHtml(cat)}</span><span class="souv-cat-move-btn" onclick="event.stopPropagation();moveSouvCat('${escHtml(cat)}',-1)">▲</span><span class="souv-cat-move-btn" onclick="event.stopPropagation();moveSouvCat('${escHtml(cat)}',1)">▼</span><span class="souv-cat-rename-btn" onclick="event.stopPropagation();startRenameCat('${escHtml(origCat)}','${escHtml(cat)}',this)">✎</span><span class="souv-cat-arrow">${isCollapsed ? '▸' : '▾'}</span>`;
+    label.innerHTML = `<span style="flex:1">${escHtml(cat)}</span><span class="souv-cat-rename-btn" onclick="event.stopPropagation();startRenameCat('${escHtml(origCat)}','${escHtml(cat)}',this)">✎</span><span class="souv-cat-move-btn" style="margin-left:10px" onclick="event.stopPropagation();moveSouvCat('${escHtml(cat)}',-1)">▲</span><span class="souv-cat-move-btn" onclick="event.stopPropagation();moveSouvCat('${escHtml(cat)}',1)">▼</span><span class="souv-cat-arrow" style="margin-left:14px">${isCollapsed ? '▸' : '▾'}</span>`;
     section.appendChild(label);
     const grid = document.createElement('div');
     grid.className = 'souv-grid';
