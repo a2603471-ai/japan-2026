@@ -447,6 +447,12 @@ body {
 .souv-cat-rename-btn:hover { color:#888; }
 .souv-cat-rename-input { font-size:0.8rem; font-weight:700; color:#666; border:1.5px solid #ccc; border-radius:4px; padding:2px 6px; width:120px; font-family:inherit; }
 .souv-section.collapsed .souv-grid { display:none; }
+.souv-filter-bar { display:flex; gap:6px; padding:8px 12px; overflow-x:auto; scrollbar-width:none; border-bottom:1px solid #F0F0F0; background:#FAFAFA; flex-shrink:0; }
+.souv-filter-bar::-webkit-scrollbar { display:none; }
+.souv-filter-btn { flex:0 0 auto; padding:5px 12px; border:1.5px solid #E0E0E0; border-radius:16px; background:#fff; font-size:0.76rem; color:#888; cursor:pointer; font-family:inherit; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+.souv-filter-btn.active { background:#1A1A1A; border-color:#1A1A1A; color:#fff; font-weight:600; }
+.souv-cat-move-btn { font-size:0.8rem; color:#CCC; padding:2px 3px; cursor:pointer; flex-shrink:0; -webkit-tap-highlight-color:transparent; line-height:1; }
+.souv-cat-move-btn:active { color:#555; }
 .souv-edit-btn { position:absolute; top:8px; left:8px; width:26px; height:26px; border-radius:50%; background:rgba(70,130,220,0.82); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; z-index:2; }
 .souv-note-text { font-size:0.75rem; color:#999; margin-top:3px; line-height:1.4; }
 .souv-form-textarea { width:100%; padding:10px 12px; border:1.5px solid #E0E0E0; border-radius:8px; font-size:0.9rem; margin-bottom:8px; box-sizing:border-box; font-family:inherit; resize:vertical; min-height:60px; }
@@ -905,6 +911,7 @@ body {
     <button class="souv-add-btn" onclick="openSouvAddForm()">＋</button>
     <button class="map-close" onclick="closeSouvenirModal()">✕</button>
   </div>
+  <div id="souv-filter-bar" class="souv-filter-bar"></div>
   <div id="souv-add-form">
     <div class="souv-form-card">
       <div class="souv-form-title">新增伴手禮</div>
@@ -984,12 +991,16 @@ const db = firebase.database();
 let fbChecks = {};
 let fbCustom = [];
 let fbCatAliases = {};
+let fbCatOrder = [];
+let currentSouvFilter = 'all';
+let lastRenderedCats = [];
 
 db.ref('souvenirs').on('value', snap => {
   const data = snap.val() || {};
   fbChecks = data.checks || {};
   fbCustom = Array.isArray(data.custom) ? data.custom : (data.custom ? Object.values(data.custom) : []);
   fbCatAliases = data.catAliases || {};
+  fbCatOrder = Array.isArray(data.catOrder) ? data.catOrder : [];
   const modal = document.getElementById('souv-modal');
   if (modal && modal.classList.contains('open')) {
     renderSouvBody();
@@ -1330,7 +1341,15 @@ function renderSouvBody() {
   });
   const resolvedBuiltins = SOUV_BUILTIN_CATS.map(c => fbCatAliases[c] || c);
   const extraCats = Object.keys(catMap).filter(c => !resolvedBuiltins.includes(c));
-  [...resolvedBuiltins, ...extraCats].forEach(cat => {
+  const allAvailCats = [...resolvedBuiltins, ...extraCats];
+  let orderedCats;
+  if (fbCatOrder.length) {
+    orderedCats = [...fbCatOrder.filter(c => allAvailCats.includes(c)), ...allAvailCats.filter(c => !fbCatOrder.includes(c))];
+  } else {
+    orderedCats = allAvailCats;
+  }
+  lastRenderedCats = orderedCats.filter(c => catMap[c] && catMap[c].length);
+  orderedCats.forEach(cat => {
     const items = catMap[cat];
     if (!items || !items.length) return;
     const isCollapsed = !!collapsed[cat];
@@ -1341,7 +1360,7 @@ function renderSouvBody() {
     label.className = 'souv-cat-label';
     label.onclick = () => toggleSouvCat(cat);
     const origCat = Object.keys(fbCatAliases).find(k => fbCatAliases[k] === cat) || cat;
-    label.innerHTML = `<span>${escHtml(cat)}</span><span class="souv-cat-rename-btn" onclick="event.stopPropagation();startRenameCat('${escHtml(origCat)}','${escHtml(cat)}',this)">✎</span><span class="souv-cat-arrow">${isCollapsed ? '▸' : '▾'}</span>`;
+    label.innerHTML = `<span style="flex:1">${escHtml(cat)}</span><span class="souv-cat-move-btn" onclick="event.stopPropagation();moveSouvCat('${escHtml(cat)}',-1)">▲</span><span class="souv-cat-move-btn" onclick="event.stopPropagation();moveSouvCat('${escHtml(cat)}',1)">▼</span><span class="souv-cat-rename-btn" onclick="event.stopPropagation();startRenameCat('${escHtml(origCat)}','${escHtml(cat)}',this)">✎</span><span class="souv-cat-arrow">${isCollapsed ? '▸' : '▾'}</span>`;
     section.appendChild(label);
     const grid = document.createElement('div');
     grid.className = 'souv-grid';
@@ -1350,6 +1369,39 @@ function renderSouvBody() {
       .forEach(item => grid.appendChild(makeSouvItemEl(item.key, item.img, item.name, item.price, item.note, item.customIdx)));
     section.appendChild(grid);
     container.appendChild(section);
+  });
+  renderSouvFilterBar();
+  applySouvFilter();
+}
+function moveSouvCat(cat, dir) {
+  const idx = lastRenderedCats.indexOf(cat);
+  if (idx < 0) return;
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= lastRenderedCats.length) return;
+  const newOrder = [...lastRenderedCats];
+  [newOrder[idx], newOrder[newIdx]] = [newOrder[newIdx], newOrder[idx]];
+  fbCatOrder = newOrder;
+  db.ref('souvenirs/catOrder').set(newOrder);
+  renderSouvBody();
+}
+function renderSouvFilterBar() {
+  const bar = document.getElementById('souv-filter-bar');
+  if (!bar) return;
+  let html = `<button class="souv-filter-btn${currentSouvFilter==='all'?' active':''}" onclick="filterSouv('all')">全部</button>`;
+  lastRenderedCats.forEach(cat => {
+    const active = currentSouvFilter === cat ? ' active' : '';
+    html += `<button class="souv-filter-btn${active}" onclick="filterSouv(${JSON.stringify(cat)})">${escHtml(cat)}</button>`;
+  });
+  bar.innerHTML = html;
+}
+function filterSouv(cat) {
+  currentSouvFilter = cat;
+  renderSouvFilterBar();
+  applySouvFilter();
+}
+function applySouvFilter() {
+  document.querySelectorAll('#souv-body-content .souv-section').forEach(section => {
+    section.style.display = (currentSouvFilter === 'all' || section.dataset.cat === currentSouvFilter) ? '' : 'none';
   });
 }
 function sortSouvGrid() {
@@ -1594,6 +1646,7 @@ function closeLightbox() {
   document.getElementById('souv-lightbox').style.display = 'none';
 }
 function openSouvenirModal() {
+  currentSouvFilter = 'all';
   renderSouvBody();
   renderSouvProgress();
   document.getElementById('souv-modal').classList.add('open');
