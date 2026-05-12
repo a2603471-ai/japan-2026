@@ -1390,7 +1390,7 @@ function renderSouvFilterBar() {
   let html = `<button class="souv-filter-btn${currentSouvFilter==='all'?' active':''}" onclick="filterSouv('all')">全部</button>`;
   lastRenderedCats.forEach(cat => {
     const active = currentSouvFilter === cat ? ' active' : '';
-    html += `<button class="souv-filter-btn${active}" onclick="filterSouv(${JSON.stringify(cat)})">${escHtml(cat)}</button>`;
+    html += `<button class="souv-filter-btn${active}" onclick="filterSouv('${escHtml(cat)}')">${escHtml(cat)}</button>`;
   });
   bar.innerHTML = html;
 }
